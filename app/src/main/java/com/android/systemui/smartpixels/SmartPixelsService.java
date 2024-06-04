@@ -55,6 +55,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.fk.smartpixelsposed.SettingsSystem;
+
 import de.robv.android.xposed.XposedHelpers;
 
 public class SmartPixelsService {
@@ -63,15 +65,16 @@ public class SmartPixelsService {
     private WindowManager windowManager;
     private View view = null;
     private BitmapDrawable draw;
+    private BitmapDrawable empty;
 
     private boolean destroyed = false;
     public static boolean running = false;
 
     private int startCounter = 0;
     private Context mContext;
-    private Handler mHandler;
     private int orientation;
     private ContentObserver mObserver;
+    private Handler mHandler;
 
     // Pixel Filter Settings
     private int mPattern = 3;
@@ -80,39 +83,17 @@ public class SmartPixelsService {
     public static final int PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY = 1 << 20;
     public static final int PRIVATE_FLAG_TRUSTED_OVERLAY = 1 << 29;
 
-    public SmartPixelsService(Context context) {
-        onCreate(context);
+    public SmartPixelsService(Context context, Handler handler) {
+        onCreate(context, handler);
     }
 
-    private void onCreate(Context context) {
-        running = true;
+    private void onCreate(Context context, Handler handler) {
         mContext = context;
+        mHandler = handler;
         orientation = context.getResources().getConfiguration().orientation;
 
         updateSettings();
         Log.d(LOG, "Service started");
-
-        mHandler = new Handler(Looper.getMainLooper());
-        mObserver = new ContentObserver(mHandler) {
-            @Override
-            public void onChange(boolean selfChange) {
-                super.onChange(selfChange);
-
-                updateSettings();
-                updatePattern();
-            }
-        };
-
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
-                false,
-                mObserver
-        );
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT),
-                false,
-                mObserver
-        );
 
         startFilter();
     }
@@ -122,23 +103,58 @@ public class SmartPixelsService {
             return;
         }
 
+        running = true;
         windowManager = (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
 
         view = new View(mContext);
 
+        if (mHandler == null) {
+            mHandler = new Handler(Looper.getMainLooper());
+        }
+
+        if (mObserver == null) {
+            mObserver = new ContentObserver(mHandler) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    super.onChange(selfChange);
+
+                    updateSettings();
+                    updatePattern();
+                }
+            };
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
+                    false,
+                    mObserver
+            );
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT),
+                    false,
+                    mObserver
+            );
+        }
 
         DisplayMetrics metrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getRealMetrics(metrics);
-        Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_8888);
 
-        draw = new BitmapDrawable(mContext.getResources(), bmp);
-        draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        draw.setFilterBitmap(false);
-        draw.setAntiAlias(false);
-        draw.setTargetDensity(metrics.densityDpi);
+        if (draw == null) {
+            Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
+            draw = new BitmapDrawable(mContext.getResources(), bmp);
+            draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+            draw.setFilterBitmap(false);
+            draw.setAntiAlias(false);
+            draw.setTargetDensity(metrics.densityDpi);
+        }
 
-        view.setBackground(draw);
-        updatePattern();
+        if (empty == null) {
+            Bitmap emptyBmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
+            empty = new BitmapDrawable(mContext.getResources(), emptyBmp);
+            empty.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+            empty.setFilterBitmap(false);
+            empty.setAntiAlias(false);
+            empty.setTargetDensity(metrics.densityDpi);
+        }
 
         try {
             WindowManager.LayoutParams params = getLayoutParams();
@@ -151,9 +167,8 @@ public class SmartPixelsService {
 
         startCounter++;
         final int handlerStartCounter = startCounter;
-        final Handler handler = new Handler();
         final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        handler.postDelayed(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (view == null || destroyed || handlerStartCounter != startCounter) {
@@ -162,10 +177,10 @@ public class SmartPixelsService {
                     updatePattern();
                 }
                 if (!destroyed) {
-                    handler.postDelayed(this, Grids.ShiftTimeouts[mShiftTimeout]);
+                    mHandler.postDelayed(this, Grids.ShiftTimeouts[mShiftTimeout]);
                 }
             }
-        }, Grids.ShiftTimeouts[mShiftTimeout]);
+        });
     }
 
     public void stopFilter() {
@@ -251,10 +266,12 @@ public class SmartPixelsService {
             int y = ((i / Grids.GridSideSize) + shiftY) % Grids.GridSideSize;
             int color = (Grids.Patterns[mPattern][i] == 0) ? Color.TRANSPARENT : Color.BLACK;
             draw.getBitmap().setPixel(x, y, color);
+            empty.getBitmap().setPixel(x, y, Color.TRANSPARENT);
         }
 
         if (view != null) {
-            view.invalidateDrawable(draw);
+            view.setBackground(empty);
+            view.setBackground(draw);
         }
     }
 

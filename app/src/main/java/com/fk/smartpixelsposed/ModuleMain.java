@@ -11,6 +11,8 @@ package com.fk.smartpixelsposed;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.AttributeSet;
+import android.view.View;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
@@ -22,7 +24,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
-    private static final String SYSTEMUI_APP = SYSTEMUI_PKG + ".SystemUIApplication";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
     private SmartPixelsService mSmartPixelsService;
 
@@ -32,33 +33,52 @@ public class ModuleMain implements IXposedHookLoadPackage {
             return;
         }
 
-        Class<?> clazz = XposedHelpers.findClass(SYSTEMUI_APP, lpparam.classLoader);
-        XposedHelpers.findAndHookMethod(clazz, "onCreate", new XC_MethodHook() {
+        Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
+        XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
 
-                try {
-                    Context context = (Context) param.thisObject;
-                    mSmartPixelsService = new SmartPixelsService(context);
-                } catch (Throwable e) {
-                    XposedBridge.log(e);
+                if (mSmartPixelsService == null) {
+                    try {
+                        View view = (View) param.thisObject;
+                        mSmartPixelsService = new SmartPixelsService(view.getContext(), view.getHandler());
+                    } catch (Throwable e) {
+                        XposedBridge.log(e);
+                    }
+                } else {
+                    mSmartPixelsService.startFilter();
                 }
             }
         });
 
-        Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
         XposedHelpers.findAndHookMethod(clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 super.beforeHookedMethod(param);
-                XposedBridge.log(param.thisObject.getClass().getSimpleName() + " - onConfigurationChanged");
 
                 try {
                     Configuration conf = (Configuration) param.args[0];
                     mSmartPixelsService.onConfigurationChanged(conf);
                 } catch (Throwable e) {
                     XposedBridge.log(e);
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(clazz2, "onDetachedFromWindow", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+
+                if (mSmartPixelsService != null) {
+                    try {
+                        mSmartPixelsService.onDestroy();
+                        mSmartPixelsService = null;
+                        System.gc();
+                    } catch (Throwable e) {
+                        XposedBridge.log(e);
+                    }
                 }
             }
         });

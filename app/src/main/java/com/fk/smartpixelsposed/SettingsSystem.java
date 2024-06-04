@@ -7,7 +7,7 @@
 // All rights reserved. See COPYING, AUTHORS.
 //
 
-package com.android.systemui.smartpixels;
+package com.fk.smartpixelsposed;
 
 // A replacement of Settings.System
 public class SettingsSystem {

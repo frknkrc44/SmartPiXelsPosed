@@ -65,7 +65,6 @@ public class SmartPixelsService {
     private WindowManager windowManager;
     private View view = null;
     private BitmapDrawable draw;
-    private BitmapDrawable empty;
 
     private boolean destroyed = false;
     public static boolean running = false;
@@ -147,14 +146,7 @@ public class SmartPixelsService {
             draw.setTargetDensity(metrics.densityDpi);
         }
 
-        if (empty == null) {
-            Bitmap emptyBmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
-            empty = new BitmapDrawable(mContext.getResources(), emptyBmp);
-            empty.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-            empty.setFilterBitmap(false);
-            empty.setAntiAlias(false);
-            empty.setTargetDensity(metrics.densityDpi);
-        }
+        view.setBackground(draw);
 
         try {
             WindowManager.LayoutParams params = getLayoutParams();
@@ -266,12 +258,10 @@ public class SmartPixelsService {
             int y = ((i / Grids.GridSideSize) + shiftY) % Grids.GridSideSize;
             int color = (Grids.Patterns[mPattern][i] == 0) ? Color.TRANSPARENT : Color.BLACK;
             draw.getBitmap().setPixel(x, y, color);
-            empty.getBitmap().setPixel(x, y, Color.TRANSPARENT);
         }
 
         if (view != null) {
-            view.setBackground(empty);
-            view.setBackground(draw);
+            view.invalidate();
         }
     }
 

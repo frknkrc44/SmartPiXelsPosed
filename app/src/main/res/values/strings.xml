@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SmartPiXelsPosed</string>
+
+    <!-- Xposed -->
+    <string-array name="xposed_scopes" translatable="false">
+        <item>com.android.systemui</item>
+    </string-array>
+</resources>

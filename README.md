@@ -10,7 +10,10 @@ I kept all of original license headers and added my own classes then licensed th
 
 - [x] Main functionality
 - [x] Detect configuration changes
-- [ ] Prepare a settings screen
+- [x] Prepare a settings screen
+- [ ] Add enable/disable option
+- [ ] Add quick settings tile
+- [ ] Add auto-enable on battery saver
 - [ ] More...
 
 ## Credits

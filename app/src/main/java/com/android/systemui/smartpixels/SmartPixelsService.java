@@ -36,7 +36,10 @@ package com.android.systemui.smartpixels;
 
 import static android.content.Context.WINDOW_SERVICE;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
@@ -46,6 +49,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -55,12 +59,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.fk.smartpixelsposed.SafeValueGetter;
 import com.fk.smartpixelsposed.SettingsSystem;
 
 import de.robv.android.xposed.XposedHelpers;
 
 public class SmartPixelsService {
     public static final String LOG = "SmartPixelsService";
+    public static final String INTENT_ACTION = "com.android.systemui.action.SMART_PIXELS_REFRESH";
 
     private WindowManager windowManager;
     private View view = null;
@@ -74,6 +80,25 @@ public class SmartPixelsService {
     private int orientation;
     private ContentObserver mObserver;
     private Handler mHandler;
+    private IntentFilter mIntentFilter;
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
+            int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
+
+            Settings.System.putInt(
+                    context.getContentResolver(),
+                    SettingsSystem.SMART_PIXELS_PATTERN,
+                    pattern
+            );
+            Settings.System.putInt(
+                    context.getContentResolver(),
+                    SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT,
+                    timeout
+            );
+        }
+    };
 
     // Pixel Filter Settings
     private int mPattern = 3;
@@ -107,6 +132,15 @@ public class SmartPixelsService {
 
         view = new View(mContext);
 
+        if (mIntentFilter == null) {
+            mIntentFilter = new IntentFilter(INTENT_ACTION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mContext.registerReceiver(mReceiver, mIntentFilter, Context.RECEIVER_EXPORTED);
+            } else {
+                mContext.registerReceiver(mReceiver, mIntentFilter);
+            }
+        }
+
         if (mHandler == null) {
             mHandler = new Handler(Looper.getMainLooper());
         }
@@ -118,7 +152,7 @@ public class SmartPixelsService {
                     super.onChange(selfChange);
 
                     updateSettings();
-                    updatePattern();
+                    reloadFilter();
                 }
             };
 
@@ -157,6 +191,11 @@ public class SmartPixelsService {
             return;
         }
 
+        reloadFilter();
+    }
+
+    private void reloadFilter() {
+        mHandler.removeCallbacksAndMessages(null);
         startCounter++;
         final int handlerStartCounter = startCounter;
         final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
@@ -176,6 +215,10 @@ public class SmartPixelsService {
     }
 
     public void stopFilter() {
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+
         if (mObserver != null) {
             mContext.getContentResolver().unregisterContentObserver(mObserver);
         }
@@ -266,17 +309,7 @@ public class SmartPixelsService {
     }
 
     private void updateSettings() {
-        mPattern = Settings.System.getInt(
-                mContext.getContentResolver(), SettingsSystem.SMART_PIXELS_PATTERN,
-                5);
-        mPattern = safeSet(mPattern, Grids.Patterns.length);
-        mShiftTimeout = Settings.System.getInt(
-                mContext.getContentResolver(), SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT,
-                4);
-        mShiftTimeout = safeSet(mShiftTimeout, Grids.ShiftTimeouts.length);
-    }
-
-    private int safeSet(int value, int max) {
-        return Math.max(0, Math.min(value, max - 1));
+        mPattern = SafeValueGetter.getPattern(mContext);
+        mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
     }
 }

@@ -35,20 +35,20 @@ package com.android.systemui.smartpixels;
 
 public class Grids {
 
-    public static final int GridSize = 64;
     public static final int GridSideSize = 8;
-
-    public static String[] PatternNames = new String[] {
-            "12%",
-            "25%",
-            "38%",
-            "50%",
-            "62%",
-            "75%",
-            "88%",
-    };
+    public static final int GridSize = GridSideSize * GridSideSize;
 
     public static byte[][] Patterns = new byte[][] {
+            {
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+            },
             {
                     1, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 1, 0, 0, 0, 0,

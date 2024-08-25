@@ -2,6 +2,7 @@
 <resources>
     <!-- Smart Pixels -->
     <string-array name="smart_pixels_percent_strings" translatable="false">
+        <item>0%</item>
         <item>12%</item>
         <item>25%</item>
         <item>38%</item>

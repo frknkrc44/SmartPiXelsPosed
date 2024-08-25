@@ -49,6 +49,14 @@ public class MainActivity extends Activity {
                 checked ? 1 : 0
         ));
 
+        boolean enabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(this);
+        Switch enableOnPowerSaveItem = findViewById(R.id.settings_enabled_on_power_saver);
+        enableOnPowerSaveItem.setChecked(enabledOnPowerSaver);
+        enableOnPowerSaveItem.setOnCheckedChangeListener((v, checked) -> onOK(
+                SettingsSystem.SMART_PIXELS_ON_POWER_SAVE,
+                checked ? 1 : 0
+        ));
+
         dimPercent = SafeValueGetter.getDimPercent(this);
         View dimView = findViewById(R.id.settings_dim);
         TextView textView = dimView.findViewById(android.R.id.text1);

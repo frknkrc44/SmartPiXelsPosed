@@ -19,6 +19,16 @@
             android:paddingStart="?android:attr/listPreferredItemPaddingStart"
             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
 
+        <Switch
+            android:id="@+id/settings_enabled_on_power_saver"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/smart_pixels_on_power_save_title"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
+
         <include
             android:id="@+id/settings_dim"
             android:layout_width="match_parent"

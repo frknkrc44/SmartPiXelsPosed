@@ -62,6 +62,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.fk.smartpixelsposed.SafeValueGetter;
+import com.fk.smartpixelsposed.SettingsGlobal;
 import com.fk.smartpixelsposed.SettingsSystem;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -90,6 +91,7 @@ public class SmartPixelsService {
             ContentResolver resolver = context.getContentResolver();
 
             int enabled = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ENABLED, mEnabled ? 1 : 0);
+            int enabledOnBatterySaver = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE, mEnabledOnPowerSaver ? 1 : 0);
             int dimPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM, mDimPercent);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
@@ -98,6 +100,11 @@ public class SmartPixelsService {
                     resolver,
                     SettingsSystem.SMART_PIXELS_ENABLED,
                     enabled
+            );
+            Settings.System.putInt(
+                    resolver,
+                    SettingsSystem.SMART_PIXELS_ON_POWER_SAVE,
+                    enabledOnBatterySaver
             );
             Settings.System.putInt(
                     resolver,
@@ -118,7 +125,8 @@ public class SmartPixelsService {
     };
 
     // Pixel Filter Settings
-    private boolean mEnabled = true;
+    private boolean mEnabled = false;
+    private boolean mEnabledOnPowerSaver = false;
     private int mDimPercent = 0;
     private int mPattern = 3;
     private int mShiftTimeout = 4;
@@ -128,6 +136,10 @@ public class SmartPixelsService {
 
     public SmartPixelsService(Context context, Handler handler) {
         onCreate(context, handler);
+    }
+
+    public boolean isEnabled() {
+        return mEnabled || (mEnabledOnPowerSaver && SafeValueGetter.isLowPowerMode(mContext));
     }
 
     private void onCreate(Context context, Handler handler) {
@@ -180,7 +192,17 @@ public class SmartPixelsService {
             };
 
             mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
+                    false,
+                    mObserver
+            );
+            mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),
+                    false,
+                    mObserver
+            );
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE),
                     false,
                     mObserver
             );
@@ -224,7 +246,7 @@ public class SmartPixelsService {
     }
 
     private void reloadFilter() {
-        if (!mEnabled) {
+        if (!isEnabled()) {
             stopFilter();
             return;
         }
@@ -300,6 +322,7 @@ public class SmartPixelsService {
         }
     }
 
+    @SuppressLint({"DiscouragedApi", "InternalInsetResource"})
     private WindowManager.LayoutParams getLayoutParams() {
         Point displaySize = new Point();
         windowManager.getDefaultDisplay().getRealSize(displaySize);
@@ -361,11 +384,12 @@ public class SmartPixelsService {
     }
 
     private int getDimColor() {
-        return Color.argb(mDimPercent / 100.0f, 0, 0, 0);
+        return Color.argb((int) ((mDimPercent / 100.0f) * 255), 0, 0, 0);
     }
 
     private void updateSettings() {
         mEnabled = SafeValueGetter.getEnabled(mContext);
+        mEnabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(mContext);
         mDimPercent = SafeValueGetter.getDimPercent(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);

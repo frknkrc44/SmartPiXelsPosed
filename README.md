@@ -13,7 +13,7 @@ I kept all of original license headers and added my own classes then licensed th
 - [x] Prepare a settings screen
 - [x] Add enable/disable option
 - [x] Add quick settings tile
-- [ ] Add auto-enable on battery saver
+- [x] Add auto-enable on battery saver
 - [ ] Merge translations
 - [x] EXTRA: Add screen dimmer
 

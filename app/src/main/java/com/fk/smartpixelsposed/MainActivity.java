@@ -16,7 +16,6 @@ import android.widget.TwoLineListItem;
 import com.android.systemui.smartpixels.SmartPixelsService;
 
 public class MainActivity extends Activity {
-    private boolean enabled;
     private int dimPercent;
     private String[] percentStrs;
     private String[] shiftStrs;
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
     }
 
     private void setValues() {
-        enabled = SafeValueGetter.getEnabled(this);
+        boolean enabled = SafeValueGetter.getEnabled(this);
         Switch enableItem = findViewById(R.id.settings_enabled);
         enableItem.setChecked(enabled);
         enableItem.setOnCheckedChangeListener((v, checked) -> onOK(

@@ -17,7 +17,7 @@ public class SafeValueGetter {
                 SettingsSystem.SMART_PIXELS_ENABLED
         );
 
-        if (!TextUtils.isDigitsOnly(value)) {
+        if (TextUtils.isEmpty(value) || !TextUtils.isDigitsOnly(value)) {
             value = "1";
         }
 

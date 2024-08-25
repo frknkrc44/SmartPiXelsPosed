@@ -20,6 +20,12 @@
             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
 
         <include
+            android:id="@+id/settings_dim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/seekbar_dim" />
+
+        <include
             android:id="@+id/settings_pattern"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -7,6 +7,8 @@ import android.text.TextUtils;
 import com.android.systemui.smartpixels.Grids;
 
 public class SafeValueGetter {
+    public static final int DIM_PERCENT_MAX = 90;
+
     private SafeValueGetter() {}
 
     public static boolean getEnabled(Context context) {
@@ -20,6 +22,15 @@ public class SafeValueGetter {
         }
 
         return safeGet(Integer.parseInt(value), 2) == 1;
+    }
+
+    public static int getDimPercent(Context context) {
+        int value = Settings.System.getInt(
+                context.getContentResolver(),
+                SettingsSystem.SMART_PIXELS_DIM,
+                0
+        );
+        return safeGet(value, DIM_PERCENT_MAX + 1);
     }
 
     public static int getPattern(Context context) {

@@ -90,6 +90,7 @@ public class SmartPixelsService {
             ContentResolver resolver = context.getContentResolver();
 
             int enabled = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ENABLED, mEnabled ? 1 : 0);
+            int dimPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM, mDimPercent);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
 
@@ -97,6 +98,11 @@ public class SmartPixelsService {
                     resolver,
                     SettingsSystem.SMART_PIXELS_ENABLED,
                     enabled
+            );
+            Settings.System.putInt(
+                    resolver,
+                    SettingsSystem.SMART_PIXELS_DIM,
+                    dimPercent
             );
             Settings.System.putInt(
                     resolver,
@@ -113,6 +119,7 @@ public class SmartPixelsService {
 
     // Pixel Filter Settings
     private boolean mEnabled = true;
+    private int mDimPercent = 0;
     private int mPattern = 3;
     private int mShiftTimeout = 4;
 
@@ -178,6 +185,11 @@ public class SmartPixelsService {
                     mObserver
             );
             mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM),
+                    false,
+                    mObserver
+            );
+            mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
                     false,
                     mObserver
@@ -189,16 +201,12 @@ public class SmartPixelsService {
             );
         }
 
-        DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getRealMetrics(metrics);
-
         if (draw == null) {
             Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
             draw = new BitmapDrawable(mContext.getResources(), bmp);
             draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
             draw.setFilterBitmap(false);
             draw.setAntiAlias(false);
-            draw.setTargetDensity(metrics.densityDpi);
         }
 
         view.setBackground(draw);
@@ -333,13 +341,17 @@ public class SmartPixelsService {
     }
 
     private void updatePattern() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getRealMetrics(metrics);
+        draw.setTargetDensity(metrics.densityDpi);
+
         int shift = getShift();
         int shiftX = shift % Grids.GridSideSize;
         int shiftY = shift / Grids.GridSideSize;
         for (int i = 0; i < Grids.GridSize; i++) {
             int x = (i + shiftX) % Grids.GridSideSize;
             int y = ((i / Grids.GridSideSize) + shiftY) % Grids.GridSideSize;
-            int color = (Grids.Patterns[mPattern][i] == 0) ? Color.TRANSPARENT : Color.BLACK;
+            int color = (Grids.Patterns[mPattern][i] == 0) ? getDimColor() : Color.BLACK;
             draw.getBitmap().setPixel(x, y, color);
         }
 
@@ -348,8 +360,13 @@ public class SmartPixelsService {
         }
     }
 
+    private int getDimColor() {
+        return Color.argb(mDimPercent / 100.0f, 0, 0, 0);
+    }
+
     private void updateSettings() {
         mEnabled = SafeValueGetter.getEnabled(mContext);
+        mDimPercent = SafeValueGetter.getDimPercent(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
     }

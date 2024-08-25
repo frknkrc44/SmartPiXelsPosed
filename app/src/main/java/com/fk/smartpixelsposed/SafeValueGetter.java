@@ -2,11 +2,25 @@ package com.fk.smartpixelsposed;
 
 import android.content.Context;
 import android.provider.Settings;
+import android.text.TextUtils;
 
 import com.android.systemui.smartpixels.Grids;
 
 public class SafeValueGetter {
     private SafeValueGetter() {}
+
+    public static boolean getEnabled(Context context) {
+        String value = Settings.System.getString(
+                context.getContentResolver(),
+                SettingsSystem.SMART_PIXELS_ENABLED
+        );
+
+        if (!TextUtils.isDigitsOnly(value)) {
+            value = "1";
+        }
+
+        return safeGet(Integer.parseInt(value), 2) == 1;
+    }
 
     public static int getPattern(Context context) {
         int value = Settings.System.getInt(

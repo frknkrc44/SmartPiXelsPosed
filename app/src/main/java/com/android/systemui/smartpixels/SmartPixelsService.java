@@ -36,7 +36,9 @@ package com.android.systemui.smartpixels;
 
 import static android.content.Context.WINDOW_SERVICE;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -78,22 +80,31 @@ public class SmartPixelsService {
     private int startCounter = 0;
     private Context mContext;
     private int orientation;
+    private int smallestScreenWidthDp;
     private ContentObserver mObserver;
     private Handler mHandler;
     private IntentFilter mIntentFilter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            ContentResolver resolver = context.getContentResolver();
+
+            int enabled = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ENABLED, mEnabled ? 1 : 0);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
 
             Settings.System.putInt(
-                    context.getContentResolver(),
+                    resolver,
+                    SettingsSystem.SMART_PIXELS_ENABLED,
+                    enabled
+            );
+            Settings.System.putInt(
+                    resolver,
                     SettingsSystem.SMART_PIXELS_PATTERN,
                     pattern
             );
             Settings.System.putInt(
-                    context.getContentResolver(),
+                    resolver,
                     SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT,
                     timeout
             );
@@ -101,6 +112,7 @@ public class SmartPixelsService {
     };
 
     // Pixel Filter Settings
+    private boolean mEnabled = true;
     private int mPattern = 3;
     private int mShiftTimeout = 4;
 
@@ -114,7 +126,10 @@ public class SmartPixelsService {
     private void onCreate(Context context, Handler handler) {
         mContext = context;
         mHandler = handler;
-        orientation = context.getResources().getConfiguration().orientation;
+
+        Configuration conf =  context.getResources().getConfiguration();
+        orientation = conf.orientation;
+        smallestScreenWidthDp = conf.smallestScreenWidthDp;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -122,6 +137,7 @@ public class SmartPixelsService {
         startFilter();
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public void startFilter(){
         if (view != null) {
             return;
@@ -156,6 +172,11 @@ public class SmartPixelsService {
                 }
             };
 
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),
+                    false,
+                    mObserver
+            );
             mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
                     false,
@@ -195,7 +216,17 @@ public class SmartPixelsService {
     }
 
     private void reloadFilter() {
+        if (!mEnabled) {
+            stopFilter();
+            return;
+        }
+
         mHandler.removeCallbacksAndMessages(null);
+
+        if (view.getParent() == null) {
+            windowManager.addView(view, getLayoutParams());
+        }
+
         startCounter++;
         final int handlerStartCounter = startCounter;
         final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
@@ -219,7 +250,7 @@ public class SmartPixelsService {
             mHandler.removeCallbacksAndMessages(null);
         }
 
-        if (mObserver != null) {
+        if (mObserver != null && destroyed) {
             mContext.getContentResolver().unregisterContentObserver(mObserver);
         }
 
@@ -229,8 +260,13 @@ public class SmartPixelsService {
 
         startCounter++;
 
-        windowManager.removeView(view);
-        view = null;
+        if (view.getParent() != null) {
+            windowManager.removeView(view);
+        }
+
+        if (destroyed) {
+            view = null;
+        }
     }
 
     public void onDestroy() {
@@ -241,15 +277,19 @@ public class SmartPixelsService {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        if (orientation == newConfig.orientation) {
+        if (orientation == newConfig.orientation && smallestScreenWidthDp == newConfig.smallestScreenWidthDp) {
             return;
         }
 
+        smallestScreenWidthDp = newConfig.smallestScreenWidthDp;
         orientation = newConfig.orientation;
-        Log.d(LOG, "Screen orientation changed, updating window layout");
 
-        WindowManager.LayoutParams params = getLayoutParams();
-        windowManager.updateViewLayout(view, params);
+        if (view.getParent() != null) {
+            Log.d(LOG, "Screen orientation or smallest width changed, updating window layout");
+
+            WindowManager.LayoutParams params = getLayoutParams();
+            windowManager.updateViewLayout(view, params);
+        }
     }
 
     private WindowManager.LayoutParams getLayoutParams() {
@@ -309,6 +349,7 @@ public class SmartPixelsService {
     }
 
     private void updateSettings() {
+        mEnabled = SafeValueGetter.getEnabled(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
     }

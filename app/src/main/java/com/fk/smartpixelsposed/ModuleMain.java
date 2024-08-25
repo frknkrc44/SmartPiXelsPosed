@@ -9,9 +9,7 @@
 
 package com.fk.smartpixelsposed;
 
-import android.content.Context;
 import android.content.res.Configuration;
-import android.util.AttributeSet;
 import android.view.View;
 
 import com.android.systemui.smartpixels.SmartPixelsService;

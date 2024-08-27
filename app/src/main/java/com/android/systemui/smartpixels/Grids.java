@@ -2,6 +2,7 @@
  * Copyright (c) 2015, Sergii Pylypenko
  *           (c) 2018, Joe Maples
  *           (c) 2018, CarbonROM
+ *           (c) 2024, Furkan Karcıoğlu
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

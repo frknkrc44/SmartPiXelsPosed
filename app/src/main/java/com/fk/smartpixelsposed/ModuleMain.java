@@ -23,12 +23,28 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
+    private static final String SYSTEMUI_BC = SYSTEMUI_PKG + ".statusbar.policy.BatteryController";
     private SmartPixelsService mSmartPixelsService;
+    private boolean mUsingWorkaroundForBS = false;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(SYSTEMUI_PKG)) {
             return;
+        }
+
+        Class<?> bTileClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BC, lpparam.classLoader);
+        if (bTileClazz != null) {
+            mUsingWorkaroundForBS = true;
+
+            XposedBridge.hookAllMethods(bTileClazz, "setPowerSaveMode", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    if (mSmartPixelsService != null) {
+                        mSmartPixelsService.reloadFilter();
+                    }
+                }
+            });
         }
 
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
@@ -41,12 +57,13 @@ public class ModuleMain implements IXposedHookLoadPackage {
                     try {
                         View view = (View) param.thisObject;
                         mSmartPixelsService = new SmartPixelsService(view.getContext(), view.getHandler());
+                        mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
                     } catch (Throwable e) {
                         XposedBridge.log(e);
                     }
-                } else {
-                    mSmartPixelsService.startFilter();
                 }
+
+                mSmartPixelsService.startFilter();
             }
         });
 

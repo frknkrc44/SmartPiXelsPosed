@@ -3,6 +3,7 @@
  *           (c) 2018, Joe Maples
  *           (c) 2018, Adin Kwok
  *           (c) 2018, CarbonROM
+ *           (c) 2024, Furkan Karcıoğlu
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +77,8 @@ public class SmartPixelsService {
     private BitmapDrawable draw;
 
     private boolean destroyed = false;
-    public static boolean running = false;
+    public boolean running = false;
+    public boolean useAlternativeMethodForBS = false;
 
     private int startCounter = 0;
     private Context mContext;
@@ -152,8 +154,6 @@ public class SmartPixelsService {
 
         updateSettings();
         Log.d(LOG, "Service started");
-
-        startFilter();
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -181,46 +181,7 @@ public class SmartPixelsService {
         }
 
         if (mObserver == null) {
-            mObserver = new ContentObserver(mHandler) {
-                @Override
-                public void onChange(boolean selfChange) {
-                    super.onChange(selfChange);
-
-                    updateSettings();
-                    reloadFilter();
-                }
-            };
-
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
-                    false,
-                    mObserver
-            );
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),
-                    false,
-                    mObserver
-            );
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE),
-                    false,
-                    mObserver
-            );
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM),
-                    false,
-                    mObserver
-            );
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
-                    false,
-                    mObserver
-            );
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT),
-                    false,
-                    mObserver
-            );
+            mObserver = new SmartPixelsObserver();
         }
 
         if (draw == null) {
@@ -245,7 +206,7 @@ public class SmartPixelsService {
         reloadFilter();
     }
 
-    private void reloadFilter() {
+    public void reloadFilter() {
         if (!isEnabled()) {
             stopFilter();
             return;
@@ -393,5 +354,55 @@ public class SmartPixelsService {
         mDimPercent = SafeValueGetter.getDimPercent(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
+    }
+
+    private class SmartPixelsObserver extends ContentObserver {
+        public SmartPixelsObserver() {
+            super(mHandler);
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT),
+                    false,
+                    this
+            );
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+
+            updateSettings();
+            reloadFilter();
+        }
     }
 }

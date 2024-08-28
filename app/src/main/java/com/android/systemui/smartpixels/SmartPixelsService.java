@@ -87,8 +87,9 @@ public class SmartPixelsService {
     private int smallestScreenWidthDp;
     private ContentObserver mObserver;
     private Handler mHandler;
-    private IntentFilter mIntentFilter;
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    private IntentFilter mSettingsIntentFilter;
+
+    private final BroadcastReceiver mSettingsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             ContentResolver resolver = context.getContentResolver();
@@ -175,12 +176,12 @@ public class SmartPixelsService {
 
         view = new View(mContext);
 
-        if (mIntentFilter == null) {
-            mIntentFilter = new IntentFilter(INTENT_ACTION);
+        if (mSettingsIntentFilter == null) {
+            mSettingsIntentFilter = new IntentFilter(INTENT_ACTION);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                mContext.registerReceiver(mReceiver, mIntentFilter, Context.RECEIVER_EXPORTED);
+                mContext.registerReceiver(mSettingsReceiver, mSettingsIntentFilter, Context.RECEIVER_EXPORTED);
             } else {
-                mContext.registerReceiver(mReceiver, mIntentFilter);
+                mContext.registerReceiver(mSettingsReceiver, mSettingsIntentFilter);
             }
         }
 

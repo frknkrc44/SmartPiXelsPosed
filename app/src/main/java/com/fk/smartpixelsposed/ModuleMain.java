@@ -24,6 +24,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
     private static final String SYSTEMUI_BC = SYSTEMUI_PKG + ".statusbar.policy.BatteryController";
+    private static final String SYSTEMUI_BCCB = SYSTEMUI_BC + "$BatteryStateChangeCallback";
     private static final String SYSTEMUI_BST = SYSTEMUI_PKG + ".qs.tiles.BatterySaverTile";
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private SmartPixelsService mSmartPixelsService;
@@ -66,6 +67,12 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bTileClazz, "onPowerSaveChanged", powerSaverHook);
         }
 
+        Class<?> bcCallbackClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BCCB, lpparam.classLoader);
+        if (bcCallbackClazz != null) {
+            mUsingWorkaroundForBS = true;
+
+            XposedBridge.hookAllMethods(bcCallbackClazz, "onPowerSaveChanged", powerSaverHook);
+        }
 
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
         XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {

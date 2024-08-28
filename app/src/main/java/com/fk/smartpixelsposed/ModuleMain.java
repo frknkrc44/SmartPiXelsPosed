@@ -24,6 +24,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
     private static final String SYSTEMUI_BC = SYSTEMUI_PKG + ".statusbar.policy.BatteryController";
+    private static final String SYSTEMUI_BST = SYSTEMUI_PKG + ".qs.tiles.BatterySaverTile";
+    private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private SmartPixelsService mSmartPixelsService;
     private boolean mUsingWorkaroundForBS = false;
 
@@ -33,19 +35,37 @@ public class ModuleMain implements IXposedHookLoadPackage {
             return;
         }
 
-        Class<?> bTileClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BC, lpparam.classLoader);
+        XC_MethodHook powerSaverHook = new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (mSmartPixelsService != null) {
+                    mSmartPixelsService.batterySaverEnabled = (boolean) param.args[0];
+                    mSmartPixelsService.reloadFilter();
+                }
+            }
+        };
+
+        Class<?> bCtrlClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BC, lpparam.classLoader);
+        if (bCtrlClazz != null) {
+            mUsingWorkaroundForBS = true;
+
+            XposedBridge.hookAllMethods(bCtrlClazz, "setPowerSaveMode", powerSaverHook);
+        }
+
+        Class<?> bsTileClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BST, lpparam.classLoader);
+        if (bsTileClazz != null) {
+            mUsingWorkaroundForBS = true;
+
+            XposedBridge.hookAllMethods(bsTileClazz, "onPowerSaveChanged", powerSaverHook);
+        }
+
+        Class<?> bTileClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BT, lpparam.classLoader);
         if (bTileClazz != null) {
             mUsingWorkaroundForBS = true;
 
-            XposedBridge.hookAllMethods(bTileClazz, "setPowerSaveMode", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (mSmartPixelsService != null) {
-                        mSmartPixelsService.reloadFilter();
-                    }
-                }
-            });
+            XposedBridge.hookAllMethods(bTileClazz, "onPowerSaveChanged", powerSaverHook);
         }
+
 
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
         XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
@@ -89,7 +109,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 if (mSmartPixelsService != null) {
                     try {
                         mSmartPixelsService.onDestroy();
-                        mSmartPixelsService = null;
                         System.gc();
                     } catch (Throwable e) {
                         XposedBridge.log(e);

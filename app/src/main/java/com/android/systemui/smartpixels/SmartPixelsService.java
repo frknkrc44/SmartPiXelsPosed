@@ -79,6 +79,7 @@ public class SmartPixelsService {
     private boolean destroyed = false;
     public boolean running = false;
     public boolean useAlternativeMethodForBS = false;
+    public boolean batterySaverEnabled = false;
 
     private int startCounter = 0;
     private Context mContext;
@@ -123,6 +124,8 @@ public class SmartPixelsService {
                     SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT,
                     timeout
             );
+
+            mObserver.onChange(false);
         }
     };
 
@@ -140,8 +143,12 @@ public class SmartPixelsService {
         onCreate(context, handler);
     }
 
+    private boolean isBatterySaverEnabled() {
+        return (useAlternativeMethodForBS && batterySaverEnabled) || SafeValueGetter.isLowPowerMode(mContext);
+    }
+
     public boolean isEnabled() {
-        return mEnabled || (mEnabledOnPowerSaver && SafeValueGetter.isLowPowerMode(mContext));
+        return mEnabled || (mEnabledOnPowerSaver && isBatterySaverEnabled());
     }
 
     private void onCreate(Context context, Handler handler) {
@@ -162,6 +169,7 @@ public class SmartPixelsService {
             return;
         }
 
+        destroyed = false;
         running = true;
         windowManager = (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
 
@@ -360,11 +368,13 @@ public class SmartPixelsService {
         public SmartPixelsObserver() {
             super(mHandler);
 
-            mContext.getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
-                    false,
-                    this
-            );
+            if (!useAlternativeMethodForBS) {
+                mContext.getContentResolver().registerContentObserver(
+                        Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
+                        false,
+                        this
+                );
+            }
 
             mContext.getContentResolver().registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),

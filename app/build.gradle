@@ -33,5 +33,6 @@ android {
 }
 
 dependencies {
-    compileOnly project(":xposedlib")
+    //noinspection GradleDependency
+    compileOnly 'de.robv.android.xposed:api:82'
 }

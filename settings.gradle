@@ -22,4 +22,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "SmartPiXelsPosed"
 include ':app'
-include ':xposedlib'

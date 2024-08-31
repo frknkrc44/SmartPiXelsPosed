@@ -44,12 +44,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -66,6 +66,7 @@ import com.fk.smartpixelsposed.SafeValueGetter;
 import com.fk.smartpixelsposed.SettingsGlobal;
 import com.fk.smartpixelsposed.SettingsSystem;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class SmartPixelsService {
@@ -292,18 +293,22 @@ public class SmartPixelsService {
         }
     }
 
+    private Point getDisplaySize() {
+        Point displaySize = new Point();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            windowManager.getDefaultDisplay().getRealSize(displaySize);
+        } else {
+            Rect bounds = windowManager.getCurrentWindowMetrics().getBounds();
+            displaySize.x = bounds.width();
+            displaySize.y = bounds.height();
+        }
+
+        return displaySize;
+    }
+
     @SuppressLint({"DiscouragedApi", "InternalInsetResource"})
     private WindowManager.LayoutParams getLayoutParams() {
-        Point displaySize = new Point();
-        windowManager.getDefaultDisplay().getRealSize(displaySize);
-        Point windowSize = new Point();
-        windowManager.getDefaultDisplay().getRealSize(windowSize);
-        Resources res = mContext.getResources();
-
-        int resId = res.getIdentifier("status_bar_height", "dimen", "android");
-        int mStatusBarHeight = resId != 0 ? res.getDimensionPixelOffset(resId) : (int)(res.getDisplayMetrics().density * 25);
-        displaySize.x += displaySize.x - windowSize.x + (mStatusBarHeight * 2);
-        displaySize.y += displaySize.y - windowSize.y + (mStatusBarHeight * 2);
+        Point displaySize = getDisplaySize();
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 displaySize.x,
@@ -321,10 +326,16 @@ public class SmartPixelsService {
                 PixelFormat.TRANSPARENT
         );
 
-        // Use the rounded corners overlay to hide it from screenshots. See 132c9f514.
-        int val = XposedHelpers.getIntField(params, "privateFlags");
-        val |= PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY | PRIVATE_FLAG_TRUSTED_OVERLAY;
-        XposedHelpers.setIntField(params, "privateFlags", val);
+        try {
+            // Use the rounded corners overlay to hide it from screenshots. See 132c9f514.
+            // Use the trusted overlay to use it on some security required screens like VPN dialogs.
+            int val = XposedHelpers.getIntField(params, "privateFlags");
+            val |= PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY | PRIVATE_FLAG_TRUSTED_OVERLAY;
+            XposedHelpers.setIntField(params, "privateFlags", val);
+        } catch (Throwable throwable) {
+            XposedBridge.log(throwable);
+        }
+
         return params;
     }
 

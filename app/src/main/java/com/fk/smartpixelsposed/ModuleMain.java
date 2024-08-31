@@ -24,6 +24,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
     private static final String SYSTEMUI_BC = SYSTEMUI_PKG + ".statusbar.policy.BatteryController";
+    private static final String SYSTEMUI_BCIMPL = SYSTEMUI_PKG + ".statusbar.policy.BatteryControllerImpl";
     private static final String SYSTEMUI_BCCB = SYSTEMUI_BC + "$BatteryStateChangeCallback";
     private static final String SYSTEMUI_BST = SYSTEMUI_PKG + ".qs.tiles.BatterySaverTile";
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
@@ -45,6 +46,14 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
             }
         };
+
+        Class<?> bcImplClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BCIMPL, lpparam.classLoader);
+        if (bcImplClazz != null) {
+            mUsingWorkaroundForBS = true;
+
+            XposedBridge.hookAllMethods(bcImplClazz, "setPowerSave", powerSaverHook);
+            XposedBridge.hookAllMethods(bcImplClazz, "setPowerSaveMode", powerSaverHook);
+        }
 
         Class<?> bCtrlClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BC, lpparam.classLoader);
         if (bCtrlClazz != null) {
@@ -78,8 +87,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-
                 if (mSmartPixelsService == null) {
                     try {
                         View view = (View) param.thisObject;
@@ -96,9 +103,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
         XposedHelpers.findAndHookMethod(clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
-
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 try {
                     Configuration conf = (Configuration) param.args[0];
                     mSmartPixelsService.onConfigurationChanged(conf);
@@ -111,8 +116,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazz2, "onDetachedFromWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-
                 if (mSmartPixelsService != null) {
                     try {
                         mSmartPixelsService.onDestroy();

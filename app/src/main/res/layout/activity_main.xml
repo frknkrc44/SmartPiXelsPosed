@@ -10,6 +10,8 @@
         android:orientation="vertical">
 
         <Switch
+            android:thumb="@drawable/switch_thumb"
+            android:track="@drawable/switch_track"
             android:id="@+id/settings_enabled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -20,6 +22,8 @@
             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
 
         <Switch
+            android:thumb="@drawable/switch_thumb"
+            android:track="@drawable/switch_track"
             android:id="@+id/settings_enabled_on_power_saver"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -68,17 +68,17 @@ public class MainActivity extends Activity {
         seekBar.setMax(SafeValueGetter.DIM_PERCENT_MAX);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                dimPercent = seekBar.getProgress();
+                textView.setText(String.format("%s%%", dimPercent));
+                onOK(SettingsSystem.SMART_PIXELS_DIM, dimPercent);
+            }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                dimPercent = seekBar.getProgress();
-                textView.setText(String.format("%s%%", dimPercent));
-                onOK(SettingsSystem.SMART_PIXELS_DIM, dimPercent);
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
         int pattern = SafeValueGetter.getPattern(this);

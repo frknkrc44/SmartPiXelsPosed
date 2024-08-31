@@ -20,3 +20,4 @@ I kept all of original license headers and added my own classes then licensed th
 ## Credits
 
 - [CrDroid ROM - Android Framework](https://github.com/crdroidandroid/android_frameworks_base)
+- Waze (XelXen) - App Icon

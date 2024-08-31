@@ -16,6 +16,7 @@ I kept all of original license headers and added my own classes then licensed th
 - [x] Add auto-enable on battery saver
 - [ ] Merge translations
 - [x] EXTRA: Add screen dimmer
+- [x] EXTRA: Add system bars shifting (status bar only for now)
 
 ## Credits
 

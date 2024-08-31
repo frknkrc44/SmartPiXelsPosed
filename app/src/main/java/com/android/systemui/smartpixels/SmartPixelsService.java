@@ -69,7 +69,7 @@ import com.fk.smartpixelsposed.SettingsSystem;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class SmartPixelsService {
+public abstract class SmartPixelsService {
     public static final String LOG = "SmartPixelsService";
     public static final String INTENT_ACTION = "com.android.systemui.action.SMART_PIXELS_REFRESH";
 
@@ -97,6 +97,7 @@ public class SmartPixelsService {
 
             int enabled = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ENABLED, mEnabled ? 1 : 0);
             int enabledOnBatterySaver = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE, mEnabledOnPowerSaver ? 1 : 0);
+            int enableSystemBarsShift = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT, mEnabledSystemBarsShift ? 1 : 0);
             int dimPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM, mDimPercent);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
@@ -110,6 +111,11 @@ public class SmartPixelsService {
                     resolver,
                     SettingsSystem.SMART_PIXELS_ON_POWER_SAVE,
                     enabledOnBatterySaver
+            );
+            Settings.System.putInt(
+                    resolver,
+                    SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT,
+                    enableSystemBarsShift
             );
             Settings.System.putInt(
                     resolver,
@@ -134,6 +140,7 @@ public class SmartPixelsService {
     // Pixel Filter Settings
     private boolean mEnabled = false;
     private boolean mEnabledOnPowerSaver = false;
+    public boolean mEnabledSystemBarsShift = false;
     private int mDimPercent = 0;
     private int mPattern = 3;
     private int mShiftTimeout = 4;
@@ -293,7 +300,7 @@ public class SmartPixelsService {
         }
     }
 
-    private Point getDisplaySize() {
+    private WindowManager.LayoutParams getLayoutParams() {
         Point displaySize = new Point();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             windowManager.getDefaultDisplay().getRealSize(displaySize);
@@ -302,13 +309,6 @@ public class SmartPixelsService {
             displaySize.x = bounds.width();
             displaySize.y = bounds.height();
         }
-
-        return displaySize;
-    }
-
-    @SuppressLint({"DiscouragedApi", "InternalInsetResource"})
-    private WindowManager.LayoutParams getLayoutParams() {
-        Point displaySize = getDisplaySize();
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 displaySize.x,
@@ -364,7 +364,12 @@ public class SmartPixelsService {
         if (view != null) {
             view.invalidate();
         }
+
+        onPatternUpdated();
     }
+
+    protected abstract void onPatternUpdated();
+    protected abstract void onSettingsUpdated();
 
     private int getDimColor() {
         return Color.argb((int) ((mDimPercent / 100.0f) * 255), 0, 0, 0);
@@ -373,9 +378,12 @@ public class SmartPixelsService {
     private void updateSettings() {
         mEnabled = SafeValueGetter.getEnabled(mContext);
         mEnabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(mContext);
+        mEnabledSystemBarsShift = SafeValueGetter.getSystemBarsShiftEnabled(mContext);
         mDimPercent = SafeValueGetter.getDimPercent(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
+
+        onSettingsUpdated();
     }
 
     private class SmartPixelsObserver extends ContentObserver {
@@ -398,6 +406,12 @@ public class SmartPixelsService {
 
             mContext.getContentResolver().registerContentObserver(
                     Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE),
+                    false,
+                    this
+            );
+
+            mContext.getContentResolver().registerContentObserver(
+                    Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT),
                     false,
                     this
             );

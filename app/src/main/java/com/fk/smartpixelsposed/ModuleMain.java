@@ -9,7 +9,11 @@
 
 package com.fk.smartpixelsposed;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Handler;
 import android.view.View;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
@@ -20,6 +24,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
+@SuppressLint("DiscouragedApi")
 public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
@@ -29,6 +34,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_BST = SYSTEMUI_PKG + ".qs.tiles.BatterySaverTile";
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private SmartPixelsService mSmartPixelsService;
+    private View mStatusBarView;
     private boolean mUsingWorkaroundForBS = false;
 
     @Override
@@ -87,10 +93,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mStatusBarView = (View) param.thisObject;
+
                 if (mSmartPixelsService == null) {
                     try {
-                        View view = (View) param.thisObject;
-                        mSmartPixelsService = new SmartPixelsService(view.getContext(), view.getHandler());
+                        mSmartPixelsService = new SmartPixelsServiceImpl(mStatusBarView.getContext(), mStatusBarView.getHandler());
                         mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
                     } catch (Throwable e) {
                         XposedBridge.log(e);
@@ -104,18 +111,24 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mStatusBarView = (View) param.thisObject;
+
                 try {
                     Configuration conf = (Configuration) param.args[0];
                     mSmartPixelsService.onConfigurationChanged(conf);
                 } catch (Throwable e) {
                     XposedBridge.log(e);
                 }
+
+                updateSystemBarShifting();
             }
         });
 
         XposedHelpers.findAndHookMethod(clazz2, "onDetachedFromWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mStatusBarView = (View) param.thisObject;
+
                 if (mSmartPixelsService != null) {
                     try {
                         mSmartPixelsService.onDestroy();
@@ -126,5 +139,104 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
             }
         });
+    }
+
+    private void updateSystemBarShifting() {
+        if (!(mStatusBarView != null && mSmartPixelsService != null && mSmartPixelsService.isEnabled() && mSmartPixelsService.mEnabledSystemBarsShift)) {
+            return;
+        }
+
+        final int pixelShiftAmount = 6;
+        final int startPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
+        final int topPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
+        final boolean addToTop = (System.currentTimeMillis() % 2) == 1;
+        final Resources res = mStatusBarView.getResources();
+
+        final int stContentsId = res.getIdentifier(
+                "status_bar_contents", "id", mStatusBarView.getContext().getPackageName());
+        View stContentsView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
+
+        final int nlOutId = res.getIdentifier(
+                "notification_lights_out", "id", mStatusBarView.getContext().getPackageName());
+        View nlOutView = nlOutId == 0 ? null : mStatusBarView.findViewById(nlOutId);
+
+        final int stIconsId = res.getIdentifier(
+                "system_icons", "id", mStatusBarView.getContext().getPackageName());
+        View stIconsView = stIconsId == 0 ? null : mStatusBarView.findViewById(stIconsId);
+
+        if (stContentsView != null) {
+            final int startPaddingBase = stContentsView.getPaddingStart();
+            final int topPaddingBase = stContentsView.getPaddingTop();
+            final int endPaddingBase = stContentsView.getPaddingEnd();
+            final int bottomPaddingBase = stContentsView.getPaddingBottom();
+
+            stContentsView.setPaddingRelative(
+                    addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
+                    addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
+                    addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,
+                    addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
+            );
+        }
+
+        if (nlOutView != null) {
+            final int startPaddingBase = nlOutView.getPaddingStart();
+            final int topPaddingBase = nlOutView.getPaddingTop();
+            final int endPaddingBase = nlOutView.getPaddingEnd();
+            final int bottomPaddingBase = nlOutView.getPaddingBottom();
+
+            nlOutView.setPaddingRelative(
+                    addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
+                    addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
+                    addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,
+                    addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
+            );
+        }
+
+        if (stIconsView != null) {
+            final int startPaddingBase = stIconsView.getPaddingStart();
+            final int topPaddingBase = stIconsView.getPaddingTop();
+            final int endPaddingBase = stIconsView.getPaddingEnd();
+            final int bottomPaddingBase = stIconsView.getPaddingBottom();
+
+            stIconsView.setPaddingRelative(
+                    addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
+                    addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
+                    addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,
+                    addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
+            );
+        }
+    }
+
+    private class SmartPixelsServiceImpl extends SmartPixelsService {
+        private boolean fromSettingsUpdate = false;
+
+        public SmartPixelsServiceImpl(Context context, Handler handler) {
+            super(context, handler);
+        }
+
+        @Override
+        protected void onPatternUpdated() {
+            if (fromSettingsUpdate) {
+                fromSettingsUpdate = false;
+                return;
+            }
+
+            XposedHelpers.callMethod(
+                    mStatusBarView,
+                    "onConfigurationChanged",
+                    mStatusBarView.getResources().getConfiguration()
+            );
+        }
+
+        @Override
+        protected void onSettingsUpdated() {
+            fromSettingsUpdate = true;
+
+            XposedHelpers.callMethod(
+                    mStatusBarView,
+                    "onConfigurationChanged",
+                    mStatusBarView.getResources().getConfiguration()
+            );
+        }
     }
 }

@@ -33,6 +33,18 @@
             android:paddingStart="?android:attr/listPreferredItemPaddingStart"
             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
 
+        <Switch
+            android:thumb="@drawable/switch_thumb"
+            android:track="@drawable/switch_track"
+            android:id="@+id/settings_enabled_system_bars_shifting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/smart_pixels_system_bars_shifting_title"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
+
         <include
             android:id="@+id/settings_dim"
             android:layout_width="match_parent"

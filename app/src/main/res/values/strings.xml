@@ -18,6 +18,7 @@
     <string name="custom_timeout_summary_20mins">20 minutes</string>
     <string name="custom_timeout_summary_30mins">30 minutes</string>
     <string name="custom_timeout_summary_1hour">1 hour</string>
+    <string name="smart_pixels_system_bars_shifting_title">Enable system bars shifting</string>
 
     <!-- Xposed -->
     <string-array name="xposed_scopes" translatable="false">

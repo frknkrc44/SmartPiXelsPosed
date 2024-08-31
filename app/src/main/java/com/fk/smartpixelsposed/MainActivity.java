@@ -50,11 +50,19 @@ public class MainActivity extends Activity {
                 checked ? 1 : 0
         ));
 
-        boolean enabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(this);
+        boolean enabledOnPowerSave = SafeValueGetter.getEnabledOnPowerSaver(this);
         Switch enableOnPowerSaveItem = findViewById(R.id.settings_enabled_on_power_saver);
-        enableOnPowerSaveItem.setChecked(enabledOnPowerSaver);
+        enableOnPowerSaveItem.setChecked(enabledOnPowerSave);
         enableOnPowerSaveItem.setOnCheckedChangeListener((v, checked) -> onOK(
                 SettingsSystem.SMART_PIXELS_ON_POWER_SAVE,
+                checked ? 1 : 0
+        ));
+
+        boolean enabledSystemBarsShift = SafeValueGetter.getSystemBarsShiftEnabled(this);
+        Switch enabledSystemBarsShiftItem = findViewById(R.id.settings_enabled_system_bars_shifting);
+        enabledSystemBarsShiftItem.setChecked(enabledSystemBarsShift);
+        enabledSystemBarsShiftItem.setOnCheckedChangeListener((v, checked) -> onOK(
+                SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT,
                 checked ? 1 : 0
         ));
 

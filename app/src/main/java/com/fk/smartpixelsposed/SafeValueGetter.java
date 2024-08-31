@@ -29,6 +29,15 @@ public class SafeValueGetter {
         return safeGet(enabled, 2) == 1;
     }
 
+    public static boolean getSystemBarsShiftEnabled(Context context) {
+        int enabled = getSystemStrAsInt(
+                context,
+                SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT,
+                1
+        );
+        return safeGet(enabled, 2) == 1;
+    }
+
     public static boolean isLowPowerMode(Context context) {
         int enabled = getGlobalStrAsInt(
                 context,

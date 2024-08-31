@@ -33,7 +33,7 @@ public class SafeValueGetter {
         int enabled = getSystemStrAsInt(
                 context,
                 SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT,
-                1
+                0
         );
         return safeGet(enabled, 2) == 1;
     }

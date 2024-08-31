@@ -92,13 +92,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bcImplClazz, "setPowerSaveMode", powerSaverHook);
         }
 
-        Class<?> bCtrlClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BC, lpparam.classLoader);
-        if (bCtrlClazz != null) {
-            mUsingWorkaroundForBS = true;
-
-            XposedBridge.hookAllMethods(bCtrlClazz, "setPowerSaveMode", powerSaverHook);
-        }
-
         Class<?> bsTileClazz = XposedHelpers.findClassIfExists(SYSTEMUI_BST, lpparam.classLoader);
         if (bsTileClazz != null) {
             mUsingWorkaroundForBS = true;

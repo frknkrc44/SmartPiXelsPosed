@@ -149,56 +149,26 @@ public class ModuleMain implements IXposedHookLoadPackage {
         final int pixelShiftAmount = 6;
         final int startPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
         final int topPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
-        final boolean addToTop = (System.currentTimeMillis() % 2) == 1;
+        final boolean addToTop = (startPaddingAdd % 2) == 1;
+
+        applyShiftingToView("status_bar_contents", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView("notification_lights_out", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView("system_icons", startPaddingAdd, topPaddingAdd, addToTop);
+    }
+
+    private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
         final Resources res = mStatusBarView.getResources();
-
         final int stContentsId = res.getIdentifier(
-                "status_bar_contents", "id", mStatusBarView.getContext().getPackageName());
-        View stContentsView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
+                viewId, "id", mStatusBarView.getContext().getPackageName());
+        View foundView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
 
-        final int nlOutId = res.getIdentifier(
-                "notification_lights_out", "id", mStatusBarView.getContext().getPackageName());
-        View nlOutView = nlOutId == 0 ? null : mStatusBarView.findViewById(nlOutId);
+        if (foundView != null) {
+            final int startPaddingBase = foundView.getPaddingStart();
+            final int topPaddingBase = foundView.getPaddingTop();
+            final int endPaddingBase = foundView.getPaddingEnd();
+            final int bottomPaddingBase = foundView.getPaddingBottom();
 
-        final int stIconsId = res.getIdentifier(
-                "system_icons", "id", mStatusBarView.getContext().getPackageName());
-        View stIconsView = stIconsId == 0 ? null : mStatusBarView.findViewById(stIconsId);
-
-        if (stContentsView != null) {
-            final int startPaddingBase = stContentsView.getPaddingStart();
-            final int topPaddingBase = stContentsView.getPaddingTop();
-            final int endPaddingBase = stContentsView.getPaddingEnd();
-            final int bottomPaddingBase = stContentsView.getPaddingBottom();
-
-            stContentsView.setPaddingRelative(
-                    addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
-                    addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
-                    addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,
-                    addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
-            );
-        }
-
-        if (nlOutView != null) {
-            final int startPaddingBase = nlOutView.getPaddingStart();
-            final int topPaddingBase = nlOutView.getPaddingTop();
-            final int endPaddingBase = nlOutView.getPaddingEnd();
-            final int bottomPaddingBase = nlOutView.getPaddingBottom();
-
-            nlOutView.setPaddingRelative(
-                    addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
-                    addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
-                    addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,
-                    addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
-            );
-        }
-
-        if (stIconsView != null) {
-            final int startPaddingBase = stIconsView.getPaddingStart();
-            final int topPaddingBase = stIconsView.getPaddingTop();
-            final int endPaddingBase = stIconsView.getPaddingEnd();
-            final int bottomPaddingBase = stIconsView.getPaddingBottom();
-
-            stIconsView.setPaddingRelative(
+            foundView.setPaddingRelative(
                     addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
                     addToTop ? topPaddingBase + topPaddingAdd : topPaddingBase,
                     addToTop ? endPaddingBase : endPaddingBase + startPaddingAdd,

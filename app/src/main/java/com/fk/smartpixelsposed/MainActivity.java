@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -111,7 +112,9 @@ public class MainActivity extends Activity {
     }
 
     private void openSelectorDialog(String key, CharSequence title, int currentValue, String[] items) {
-        ArrayAdapter<String> dialogAdapter = new ArrayAdapter<>(
+        BaseAdapter dialogAdapter = SettingsSystem.SMART_PIXELS_PATTERN.equals(key)
+                ? new FilterSelectionListAdapter(currentValue, items)
+                : new ArrayAdapter<>(
                 this, android.R.layout.simple_list_item_single_choice, items);
         new AlertDialog.Builder(this)
                 .setTitle(title)

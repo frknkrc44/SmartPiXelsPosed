@@ -344,20 +344,22 @@ public class SmartPixelsService {
         return Grids.GridShift[(int)shift];
     }
 
-    private void updatePattern() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getRealMetrics(metrics);
-        draw.setTargetDensity(metrics.densityDpi);
-
-        int shift = getShift();
+    public static void drawPattern(Bitmap bmp, int pattern, int shift, int dimColor) {
         int shiftX = shift % Grids.GridSideSize;
         int shiftY = shift / Grids.GridSideSize;
         for (int i = 0; i < Grids.GridSize; i++) {
             int x = (i + shiftX) % Grids.GridSideSize;
             int y = ((i / Grids.GridSideSize) + shiftY) % Grids.GridSideSize;
-            int color = (Grids.Patterns[mPattern][i] == 0) ? getDimColor() : Color.BLACK;
-            draw.getBitmap().setPixel(x, y, color);
+            int color = (Grids.Patterns[pattern][i] == 0) ? dimColor : Color.BLACK;
+            bmp.setPixel(x, y, color);
         }
+    }
+
+    private void updatePattern() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getRealMetrics(metrics);
+        draw.setTargetDensity(metrics.densityDpi);
+        drawPattern(draw.getBitmap(), mPattern, getShift(), getDimColor());
 
         if (view != null) {
             view.invalidate();

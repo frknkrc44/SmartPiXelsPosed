@@ -289,6 +289,7 @@ public abstract class SmartPixelsService {
         }
 
         orientation = newConfig.orientation;
+        updatePattern();
 
         if (view.getParent() != null) {
             Log.d(LOG, "Screen orientation or smallest width changed, updating window layout");

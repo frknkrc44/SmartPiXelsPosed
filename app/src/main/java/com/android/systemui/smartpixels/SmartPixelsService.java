@@ -356,9 +356,7 @@ public abstract class SmartPixelsService {
     }
 
     private void updatePattern() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getRealMetrics(metrics);
-        draw.setTargetDensity(metrics.densityDpi);
+        draw.setTargetDensity(mContext.getResources().getDisplayMetrics());
         drawPattern(draw.getBitmap(), mPattern, getShift(), getDimColor());
 
         if (view != null) {

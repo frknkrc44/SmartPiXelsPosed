@@ -85,7 +85,6 @@ public abstract class SmartPixelsService {
     private int startCounter = 0;
     private Context mContext;
     private int orientation;
-    private int smallestScreenWidthDp;
     private ContentObserver mObserver;
     private Handler mHandler;
     private IntentFilter mSettingsIntentFilter;
@@ -166,7 +165,6 @@ public abstract class SmartPixelsService {
 
         Configuration conf =  context.getResources().getConfiguration();
         orientation = conf.orientation;
-        smallestScreenWidthDp = conf.smallestScreenWidthDp;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -207,6 +205,7 @@ public abstract class SmartPixelsService {
             draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
             draw.setFilterBitmap(false);
             draw.setAntiAlias(false);
+            draw.setTargetDensity(mContext.getResources().getDisplayMetrics());
         }
 
         view.setBackground(draw);
@@ -285,11 +284,10 @@ public abstract class SmartPixelsService {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        if (orientation == newConfig.orientation && smallestScreenWidthDp == newConfig.smallestScreenWidthDp) {
+        if (orientation == newConfig.orientation) {
             return;
         }
 
-        smallestScreenWidthDp = newConfig.smallestScreenWidthDp;
         orientation = newConfig.orientation;
 
         if (view.getParent() != null) {
@@ -356,7 +354,6 @@ public abstract class SmartPixelsService {
     }
 
     private void updatePattern() {
-        draw.setTargetDensity(mContext.getResources().getDisplayMetrics());
         drawPattern(draw.getBitmap(), mPattern, getShift(), getDimColor());
 
         if (view != null) {

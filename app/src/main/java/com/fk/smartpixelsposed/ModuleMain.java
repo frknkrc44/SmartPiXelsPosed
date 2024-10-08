@@ -11,10 +11,13 @@ package com.fk.smartpixelsposed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
@@ -38,6 +41,13 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
     private boolean mUsingWorkaroundForBS = false;
+
+    // --- GravityBox inspirations - start --- //
+    private int mLinger;
+    private boolean mJustPeeked;
+    private int mInitialTouchX;
+    private int mInitialTouchY;
+    // --- GravityBox inspirations - end --- //
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -169,6 +179,16 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
             }
         });
+
+        XposedHelpers.findAndHookMethod(clazz2, "onTouchEvent", MotionEvent.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (mSmartPixelsService.dimDragEnabled) {
+                    dimControl((MotionEvent) param.args[0]);
+                    param.setResult(true);
+                }
+            }
+        });
     }
 
     private void updateSystemBarShifting() {
@@ -206,6 +226,69 @@ public class ModuleMain implements IXposedHookLoadPackage {
             );
         }
     }
+
+    // --- GravityBox inspirations - start --- //
+    private void dimControl(MotionEvent event) {
+        final int action = event.getAction();
+        final int x = (int) event.getRawX();
+        final int y = (int) event.getRawY();
+        Handler handler = mStatusBarView.getHandler();
+        final int statusBarHeight = mStatusBarView.getMeasuredHeight();
+        int mPeekHeight = (int) (mStatusBarView.getResources().getDisplayMetrics().density * 84);
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                if (y < statusBarHeight) {
+                    mLinger = 0;
+                    mInitialTouchX = x;
+                    mInitialTouchY = y;
+                    mJustPeeked = true;
+                    handler.removeCallbacks(mLongPressBrightnessChange);
+                    handler.postDelayed(mLongPressBrightnessChange, 500);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (y < statusBarHeight && mJustPeeked) {
+                    if (mLinger > 20) {
+                        adjustDim(x);
+                    } else {
+                        final int xDiff = Math.abs(x - mInitialTouchX);
+                        final int yDiff = Math.abs(y - mInitialTouchY);
+                        final int touchSlop = ViewConfiguration.get(mStatusBarView.getContext()).getScaledTouchSlop();
+                        if (xDiff > yDiff) {
+                            mLinger++;
+                        }
+                        if (xDiff > touchSlop || yDiff > touchSlop) {
+                            handler.removeCallbacks(mLongPressBrightnessChange);
+                        }
+                    }
+                } else {
+                    if (y > mPeekHeight) {
+                        mJustPeeked = false;
+                    }
+                    handler.removeCallbacks(mLongPressBrightnessChange);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                handler.removeCallbacks(mLongPressBrightnessChange);
+                break;
+        }
+    }
+
+    private final Runnable mLongPressBrightnessChange = () -> adjustDim(mInitialTouchX);
+
+    private void adjustDim(int x) {
+        Context statusBarContext = mStatusBarView.getContext();
+        int mScreenWidth = statusBarContext.getResources().getDisplayMetrics().widthPixels;
+        float raw = ((float) x) / mScreenWidth;
+        int brightnessValue = Math.max(0, 90 - (int)(raw * 100));
+
+        Intent refreshIntent = new Intent(SmartPixelsService.INTENT_ACTION);
+        refreshIntent.putExtra(SettingsSystem.SMART_PIXELS_DIM, brightnessValue);
+        mSmartPixelsService.mSettingsReceiver.onReceive(statusBarContext, refreshIntent);
+    }
+    // --- GravityBox inspirations - end --- //
 
     private class SmartPixelsServiceImpl extends SmartPixelsService {
         private boolean fromSettingsUpdate = false;

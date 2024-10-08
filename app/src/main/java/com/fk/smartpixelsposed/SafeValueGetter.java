@@ -56,6 +56,15 @@ public class SafeValueGetter {
         return safeGet(value, DIM_PERCENT_MAX + 1);
     }
 
+    public static boolean isSetDimOnSBDragEnabled(Context context) {
+        int enabled = getSystemStrAsInt(
+                context,
+                SettingsSystem.SMART_PIXELS_DIM_DRAG,
+                0
+        );
+        return safeGet(enabled, 2) == 1;
+    }
+
     public static int getPattern(Context context) {
         int value = getSystemStrAsInt(
                 context,

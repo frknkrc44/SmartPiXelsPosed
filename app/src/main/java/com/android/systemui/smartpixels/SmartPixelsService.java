@@ -81,6 +81,7 @@ public abstract class SmartPixelsService {
     public boolean running = false;
     public boolean useAlternativeMethodForBS = false;
     public boolean batterySaverEnabled = false;
+    public boolean dimDragEnabled = false;
 
     private int startCounter = 0;
     private Context mContext;
@@ -89,7 +90,7 @@ public abstract class SmartPixelsService {
     private Handler mHandler;
     private IntentFilter mSettingsIntentFilter;
 
-    private final BroadcastReceiver mSettingsReceiver = new BroadcastReceiver() {
+    public final BroadcastReceiver mSettingsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             ContentResolver resolver = context.getContentResolver();
@@ -98,6 +99,7 @@ public abstract class SmartPixelsService {
             int enabledOnBatterySaver = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE, mEnabledOnPowerSaver ? 1 : 0);
             int enableSystemBarsShift = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT, mEnabledSystemBarsShift ? 1 : 0);
             int dimPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM, mDimPercent);
+            int enabledDimDrag = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM_DRAG, dimDragEnabled ? 1 : 0);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
 
@@ -120,6 +122,11 @@ public abstract class SmartPixelsService {
                     resolver,
                     SettingsSystem.SMART_PIXELS_DIM,
                     dimPercent
+            );
+            Settings.System.putInt(
+                    resolver,
+                    SettingsSystem.SMART_PIXELS_DIM_DRAG,
+                    enabledDimDrag
             );
             Settings.System.putInt(
                     resolver,
@@ -376,6 +383,7 @@ public abstract class SmartPixelsService {
         mEnabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(mContext);
         mEnabledSystemBarsShift = SafeValueGetter.getSystemBarsShiftEnabled(mContext);
         mDimPercent = SafeValueGetter.getDimPercent(mContext);
+        dimDragEnabled = SafeValueGetter.isSetDimOnSBDragEnabled(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
 
@@ -385,46 +393,53 @@ public abstract class SmartPixelsService {
     private class SmartPixelsObserver extends ContentObserver {
         public SmartPixelsObserver() {
             super(mHandler);
+            ContentResolver resolver = mContext.getContentResolver();
 
             if (!useAlternativeMethodForBS) {
-                mContext.getContentResolver().registerContentObserver(
+                resolver.registerContentObserver(
                         Settings.Global.getUriFor(SettingsGlobal.LOW_POWER),
                         false,
                         this
                 );
             }
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_ENABLED),
                     false,
                     this
             );
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
                     Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE),
                     false,
                     this
             );
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
                     Settings.Global.getUriFor(SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT),
                     false,
                     this
             );
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM),
                     false,
                     this
             );
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM_DRAG),
+                    false,
+                    this
+            );
+
+            resolver.registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_PATTERN),
                     false,
                     this
             );
 
-            mContext.getContentResolver().registerContentObserver(
+            resolver.registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT),
                     false,
                     this

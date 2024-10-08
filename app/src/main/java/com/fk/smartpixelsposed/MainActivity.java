@@ -89,6 +89,14 @@ public class MainActivity extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        boolean enabledDimDrag = SafeValueGetter.isSetDimOnSBDragEnabled(this);
+        Switch enabledDimDragItem = findViewById(R.id.settings_enabled_set_dim_on_sb_drag);
+        enabledDimDragItem.setChecked(enabledDimDrag);
+        enabledDimDragItem.setOnCheckedChangeListener((v, checked) -> onOK(
+                SettingsSystem.SMART_PIXELS_DIM_DRAG,
+                checked ? 1 : 0
+        ));
+
         int pattern = SafeValueGetter.getPattern(this);
         String patternStr = percentStrs[pattern];
         TwoLineListItem patternItem = findViewById(R.id.settings_pattern);

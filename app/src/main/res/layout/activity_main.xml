@@ -51,6 +51,18 @@
             android:layout_height="wrap_content"
             layout="@layout/seekbar_dim" />
 
+        <Switch
+            android:thumb="@drawable/switch_thumb"
+            android:track="@drawable/switch_track"
+            android:id="@+id/settings_enabled_set_dim_on_sb_drag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:text="@string/smart_pixels_set_dim_on_sb_drag"
+            android:textAppearance="?android:attr/textAppearanceListItem"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
+
         <include
             android:id="@+id/settings_pattern"
             android:layout_width="match_parent"

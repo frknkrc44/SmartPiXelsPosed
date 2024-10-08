@@ -18,4 +18,5 @@ public class SettingsSystem {
     public static final String SMART_PIXELS_PATTERN = SMART_PIXELS_PREFIX + "smart_pixels_pattern";
     public static final String SMART_PIXELS_SHIFT_TIMEOUT = SMART_PIXELS_PREFIX + "smart_pixels_shift_timeout";
     public static final String SMART_PIXELS_DIM = SMART_PIXELS_PREFIX + "smart_pixels_dim";
+    public static final String SMART_PIXELS_DIM_DRAG = SMART_PIXELS_PREFIX + "smart_pixels_dim_drag";
 }

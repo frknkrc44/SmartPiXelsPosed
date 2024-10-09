@@ -38,6 +38,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_BST = SYSTEMUI_PKG + ".qs.tiles.BatterySaverTile";
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private static final String SETTINGSLIB_BSUTILS = "com.android.settingslib.fuelgauge.BatterySaverUtils";
+
+    private static final String ID_STATUS_BAR_CONTENTS = "status_bar_contents";
+    private static final String ID_NOTIFICATION_LIGHTS_OUT = "notification_lights_out";
+    private static final String ID_SYSTEM_ICONS = "system_icons";
+
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
     private boolean mUsingWorkaroundForBS = false;
@@ -201,22 +206,30 @@ public class ModuleMain implements IXposedHookLoadPackage {
         final int topPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
         final boolean addToTop = (startPaddingAdd % 2) == 1;
 
-        applyShiftingToView("status_bar_contents", startPaddingAdd, topPaddingAdd, addToTop);
-        applyShiftingToView("notification_lights_out", startPaddingAdd, topPaddingAdd, addToTop);
-        applyShiftingToView("system_icons", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_STATUS_BAR_CONTENTS, "status_bar", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_NOTIFICATION_LIGHTS_OUT, "status_bar", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_SYSTEM_ICONS, "status_bar_icons", startPaddingAdd, topPaddingAdd, addToTop);
     }
 
-    private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
+    private void applyShiftingToView(String viewId, String padIdPrefix, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(
                 viewId, "id", mStatusBarView.getContext().getPackageName());
         View foundView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
 
         if (foundView != null) {
-            final int startPaddingBase = foundView.getPaddingStart();
-            final int topPaddingBase = foundView.getPaddingTop();
-            final int endPaddingBase = foundView.getPaddingEnd();
-            final int bottomPaddingBase = foundView.getPaddingBottom();
+            final int startPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                    ? 0
+                    : getDimension(padIdPrefix + "_padding_start", foundView.getPaddingStart());
+            final int topPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                    ? startPaddingBase
+                    : getDimension(padIdPrefix + "_padding_top", foundView.getPaddingTop());
+            final int endPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                    ? 0
+                    : getDimension(padIdPrefix + "_padding_end", foundView.getPaddingEnd());
+            final int bottomPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                    ? 0
+                    : getDimension(padIdPrefix + "_padding_bottom", foundView.getPaddingBottom());
 
             foundView.setPaddingRelative(
                     addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,
@@ -225,6 +238,13 @@ public class ModuleMain implements IXposedHookLoadPackage {
                     addToTop ? bottomPaddingBase : bottomPaddingBase + startPaddingAdd
             );
         }
+    }
+
+    private int getDimension(String name, int def) {
+        Resources res = mStatusBarView.getResources();
+        int resId = res.getIdentifier(name, "dimen", mStatusBarView.getContext().getPackageName());
+        if (resId == 0) return def;
+        return res.getDimensionPixelSize(resId);
     }
 
     // --- GravityBox inspirations - start --- //

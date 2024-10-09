@@ -21,6 +21,8 @@ import android.view.ViewConfiguration;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
+import java.lang.reflect.Method;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -206,12 +208,14 @@ public class ModuleMain implements IXposedHookLoadPackage {
         final int topPaddingAdd = (int) (System.currentTimeMillis() % pixelShiftAmount) + 2;
         final boolean addToTop = (startPaddingAdd % 2) == 1;
 
-        applyShiftingToView(ID_STATUS_BAR_CONTENTS, "status_bar", startPaddingAdd, topPaddingAdd, addToTop);
-        applyShiftingToView(ID_NOTIFICATION_LIGHTS_OUT, "status_bar", startPaddingAdd, topPaddingAdd, addToTop);
-        applyShiftingToView(ID_SYSTEM_ICONS, "status_bar_icons", startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_STATUS_BAR_CONTENTS, startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_NOTIFICATION_LIGHTS_OUT, startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_SYSTEM_ICONS, startPaddingAdd, topPaddingAdd, addToTop);
     }
 
-    private void applyShiftingToView(String viewId, String padIdPrefix, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
+    private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
+        XposedBridge.log("[SpSd - AS] ID: " + viewId + " ATT: " + addToTop);
+
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(
                 viewId, "id", mStatusBarView.getContext().getPackageName());
@@ -220,16 +224,16 @@ public class ModuleMain implements IXposedHookLoadPackage {
         if (foundView != null) {
             final int startPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
                     ? 0
-                    : getDimension(padIdPrefix + "_padding_start", foundView.getPaddingStart());
+                    : getDimension("status_bar_padding_start", foundView.getPaddingStart());
             final int topPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
                     ? startPaddingBase
-                    : getDimension(padIdPrefix + "_padding_top", foundView.getPaddingTop());
+                    : getDimension("status_bar_padding_top", foundView.getPaddingTop());
             final int endPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
                     ? 0
-                    : getDimension(padIdPrefix + "_padding_end", foundView.getPaddingEnd());
+                    : getDimension("status_bar_padding_end", foundView.getPaddingEnd());
             final int bottomPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
                     ? 0
-                    : getDimension(padIdPrefix + "_padding_bottom", foundView.getPaddingBottom());
+                    : getDimension("status_bar_padding_bottom", 0);
 
             foundView.setPaddingRelative(
                     addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,

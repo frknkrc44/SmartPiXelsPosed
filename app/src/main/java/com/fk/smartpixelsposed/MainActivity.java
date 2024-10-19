@@ -3,21 +3,29 @@ package com.fk.smartpixelsposed;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
 
+import com.android.systemui.smartpixels.Grids;
 import com.android.systemui.smartpixels.SmartPixelsService;
 
 public class MainActivity extends Activity {
     private int dimPercent;
+    private int pattern;
+    private int timeout;
     private String[] percentStrs;
     private String[] shiftStrs;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -66,19 +74,31 @@ public class MainActivity extends Activity {
                 checked ? 1 : 0
         ));
 
+        boolean enabledDimDrag = SafeValueGetter.isSetDimOnSBDragEnabled(this);
+        Switch enabledDimDragItem = findViewById(R.id.settings_enabled_set_dim_on_sb_drag);
+        enabledDimDragItem.setChecked(enabledDimDrag);
+        enabledDimDragItem.setOnCheckedChangeListener((v, checked) -> onOK(
+                SettingsSystem.SMART_PIXELS_DIM_DRAG,
+                checked ? 1 : 0
+        ));
+
         dimPercent = SafeValueGetter.getDimPercent(this);
         View dimView = findViewById(R.id.settings_dim);
-        TextView textView = dimView.findViewById(android.R.id.text1);
-        textView.setText(String.format("%s%%", dimPercent));
 
-        SeekBar seekBar = dimView.findViewById(android.R.id.input);
-        seekBar.setProgress(dimPercent);
-        seekBar.setMax(SafeValueGetter.DIM_PERCENT_MAX);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        TextView percentTransTitle = dimView.findViewById(android.R.id.text1);
+        percentTransTitle.setText(R.string.smart_pixels_dim_percent);
+
+        TextView percentTransText = dimView.findViewById(android.R.id.text2);
+        percentTransText.setText(String.format("%s%%", dimPercent));
+
+        SeekBar percentDimSeekBar = dimView.findViewById(android.R.id.input);
+        percentDimSeekBar.setProgress(dimPercent);
+        percentDimSeekBar.setMax(SafeValueGetter.DIM_PERCENT_MAX);
+        percentDimSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 dimPercent = seekBar.getProgress();
-                textView.setText(String.format("%s%%", dimPercent));
+                percentTransText.setText(String.format("%s%%", dimPercent));
                 onOK(SettingsSystem.SMART_PIXELS_DIM, dimPercent);
             }
 
@@ -89,60 +109,72 @@ public class MainActivity extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        boolean enabledDimDrag = SafeValueGetter.isSetDimOnSBDragEnabled(this);
-        Switch enabledDimDragItem = findViewById(R.id.settings_enabled_set_dim_on_sb_drag);
-        enabledDimDragItem.setChecked(enabledDimDrag);
-        enabledDimDragItem.setOnCheckedChangeListener((v, checked) -> onOK(
-                SettingsSystem.SMART_PIXELS_DIM_DRAG,
-                checked ? 1 : 0
-        ));
+        pattern = SafeValueGetter.getPattern(this);
+        ViewGroup percentDisableView = findViewById(R.id.settings_pattern);
 
-        int pattern = SafeValueGetter.getPattern(this);
-        String patternStr = percentStrs[pattern];
-        TwoLineListItem patternItem = findViewById(R.id.settings_pattern);
-        patternItem.getText1().setText(R.string.smart_pixels_percent);
-        patternItem.getText2().setText(patternStr);
-        patternItem.setOnClickListener(v -> openSelectorDialog(
-                SettingsSystem.SMART_PIXELS_PATTERN,
-                patternItem.getText1().getText(),
-                pattern,
-                percentStrs
-        ));
+        TextView percentDisableTitle = percentDisableView.findViewById(android.R.id.text1);
+        percentDisableTitle.setText(R.string.smart_pixels_percent);
 
-        int timeout = SafeValueGetter.getShiftTimeout(this);
-        TwoLineListItem shiftTimeoutItem = findViewById(R.id.settings_shift_timeout);
-        shiftTimeoutItem.getText1().setText(R.string.smart_pixels_shift_title);
-        shiftTimeoutItem.getText2().setText(R.string.smart_pixels_shift_summary);
-        shiftTimeoutItem.setOnClickListener(v -> openSelectorDialog(
-                SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT,
-                shiftTimeoutItem.getText1().getText(),
-                timeout,
-                shiftStrs
-        ));
+        TextView percentDisableText = percentDisableView.findViewById(android.R.id.text2);
+        percentDisableText.setText(percentStrs[pattern]);
+
+        SeekBar percentDisableSeekBar = percentDisableView.findViewById(android.R.id.input);
+        percentDisableSeekBar.setProgress(pattern);
+        percentDisableSeekBar.setMax(percentStrs.length - 1);
+        percentDisableSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pattern = seekBar.getProgress();
+                percentDisableText.setText(percentStrs[pattern]);
+                onOK(SettingsSystem.SMART_PIXELS_PATTERN, pattern);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        timeout = SafeValueGetter.getShiftTimeout(this);
+        ViewGroup percentTimeoutView = findViewById(R.id.settings_shift_timeout);
+
+        TextView percentTimeoutTitle = percentTimeoutView.findViewById(android.R.id.text1);
+        percentTimeoutTitle.setText(R.string.smart_pixels_shift_title);
+
+        TextView percentTimeoutText = percentTimeoutView.findViewById(android.R.id.text2);
+        percentTimeoutText.setText(shiftStrs[timeout]);
+
+        if (percentTimeoutView.findViewById(android.R.id.summary) == null) {
+            TextView percentTimeoutSummary = new TextView(this);
+            percentTimeoutSummary.setId(android.R.id.summary);
+            percentTimeoutSummary.setTextAppearance(AttrUtils.getResourceFromAttr(this, android.R.attr.textAppearanceListItemSecondary));
+            percentTimeoutSummary.setText(R.string.smart_pixels_shift_summary);
+            percentTimeoutView.addView(percentTimeoutSummary, 1);
+        }
+
+        SeekBar percentTimeoutSeekBar = percentTimeoutView.findViewById(android.R.id.input);
+        percentTimeoutSeekBar.setProgress(timeout);
+        percentTimeoutSeekBar.setMax(shiftStrs.length - 1);
+        percentTimeoutSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                timeout = seekBar.getProgress();
+                percentTimeoutText.setText(shiftStrs[timeout]);
+                onOK(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, timeout);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
 
     private void onOK(String key, int value) {
         Intent refreshIntent = new Intent(SmartPixelsService.INTENT_ACTION);
         refreshIntent.putExtra(key, value);
         sendBroadcast(refreshIntent);
-    }
-
-    private void openSelectorDialog(String key, CharSequence title, int currentValue, String[] items) {
-        BaseAdapter dialogAdapter = SettingsSystem.SMART_PIXELS_PATTERN.equals(key)
-                ? new FilterSelectionListAdapter(currentValue, items)
-                : new ArrayAdapter<>(
-                this, android.R.layout.simple_list_item_single_choice, items);
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setSingleChoiceItems(
-                        dialogAdapter,
-                        currentValue,
-                        (v, value) -> {
-                            v.dismiss();
-                            onOK(key, value);
-                        }
-                )
-                .setOnDismissListener((v) -> handler.postDelayed(this::setValues, 200))
-                .show();
     }
 }

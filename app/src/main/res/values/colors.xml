@@ -3,4 +3,5 @@
     <color name="ic_launcher_background">#1D1D1D</color>
     <color name="seekbar_progress">#4BB6E8</color>
     <color name="seekbar_shadow">#2E3133</color>
+    <color name="enable_header">#5E64FF</color>
 </resources>

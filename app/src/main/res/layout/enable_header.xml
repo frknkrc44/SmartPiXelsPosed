@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_margin="16dp"
+    android:background="@drawable/enable_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Switch
+        android:thumb="@drawable/switch_thumb"
+        android:track="@drawable/switch_track"
+        android:id="@+id/settings_enabled"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:text="@string/smart_pixels_enable_title"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
+
+</LinearLayout>

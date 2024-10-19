@@ -10,15 +10,15 @@
     <string name="smart_pixels_shift_title">Burn-in protection</string>
     <string name="smart_pixels_shift_summary">Prevents burn-in on OLED devices by shifting pixels every so often</string>
 
-    <string name="custom_timeout_summary_15secs">15 seconds</string>
-    <string name="custom_timeout_summary_30secs">30 seconds</string>
-    <string name="custom_timeout_summary_1min">1 minute</string>
-    <string name="custom_timeout_summary_2mins">2 minutes</string>
-    <string name="custom_timeout_summary_5mins">5 minutes</string>
-    <string name="custom_timeout_summary_10mins">10 minutes</string>
-    <string name="custom_timeout_summary_20mins">20 minutes</string>
-    <string name="custom_timeout_summary_30mins">30 minutes</string>
-    <string name="custom_timeout_summary_1hour">1 hour</string>
+    <string name="custom_timeout_summary_15secs">15s</string>
+    <string name="custom_timeout_summary_30secs">30s</string>
+    <string name="custom_timeout_summary_1min">1m</string>
+    <string name="custom_timeout_summary_2mins">2m</string>
+    <string name="custom_timeout_summary_5mins">5m</string>
+    <string name="custom_timeout_summary_10mins">10m</string>
+    <string name="custom_timeout_summary_20mins">20m</string>
+    <string name="custom_timeout_summary_30mins">30m</string>
+    <string name="custom_timeout_summary_1hour">1h</string>
     <string name="smart_pixels_system_bars_shifting_title">Enable system bars shifting</string>
 
     <!-- Xposed -->

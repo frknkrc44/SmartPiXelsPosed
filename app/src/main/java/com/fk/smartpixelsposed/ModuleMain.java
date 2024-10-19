@@ -21,8 +21,6 @@ import android.view.ViewConfiguration;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
-import java.lang.reflect.Method;
-
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -48,6 +46,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
     private boolean mUsingWorkaroundForBS = false;
+    private boolean mIsOEM = false;
 
     // --- GravityBox inspirations - start --- //
     private int mLinger;
@@ -97,6 +96,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         Class<?> miuibcImplClazz = XposedHelpers.findClassIfExists(SYSTEMUI_MIUIBCIMPL, lpparam.classLoader);
         if (miuibcImplClazz != null) {
             mUsingWorkaroundForBS = true;
+            mIsOEM = true;
 
             XposedBridge.hookAllMethods(miuibcImplClazz, "setPowerSave", powerSaverHook);
         }
@@ -196,6 +196,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
             }
         });
+
+        mIsOEM = SystemProperties.isOEM();
     }
 
     private void updateSystemBarShifting() {
@@ -221,19 +223,27 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 viewId, "id", mStatusBarView.getContext().getPackageName());
         View foundView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
 
+        int startPaddingBase, topPaddingBase, endPaddingBase, bottomPaddingBase;
         if (foundView != null) {
-            final int startPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
-                    ? 0
-                    : getDimension("status_bar_padding_start", foundView.getPaddingStart());
-            final int topPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
-                    ? startPaddingBase
-                    : getDimension("status_bar_padding_top", foundView.getPaddingTop());
-            final int endPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
-                    ? 0
-                    : getDimension("status_bar_padding_end", foundView.getPaddingEnd());
-            final int bottomPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
-                    ? 0
-                    : getDimension("status_bar_padding_bottom", 0);
+            if (mIsOEM) {
+                startPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                        ? 0
+                        : getDimension("status_bar_padding_start", foundView.getPaddingStart());
+                topPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                        ? startPaddingBase
+                        : getDimension("status_bar_padding_top", foundView.getPaddingTop());
+                endPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                        ? 0
+                        : getDimension("status_bar_padding_end", foundView.getPaddingEnd());
+                bottomPaddingBase = ID_NOTIFICATION_LIGHTS_OUT.equals(viewId)
+                        ? 0
+                        : getDimension("status_bar_padding_bottom", 0);
+            } else {
+                startPaddingBase = foundView.getPaddingStart();
+                topPaddingBase = foundView.getPaddingTop();
+                endPaddingBase = foundView.getPaddingEnd();
+                bottomPaddingBase = foundView.getPaddingBottom();
+            }
 
             foundView.setPaddingRelative(
                     addToTop ? startPaddingBase + startPaddingAdd : startPaddingBase,

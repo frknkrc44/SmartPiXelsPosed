@@ -435,6 +435,12 @@ public abstract class SmartPixelsService {
             );
 
             resolver.registerContentObserver(
+                    Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_BARS_ALPHA),
+                    false,
+                    this
+            );
+
+            resolver.registerContentObserver(
                     Settings.System.getUriFor(SettingsSystem.SMART_PIXELS_DIM_DRAG),
                     false,
                     this

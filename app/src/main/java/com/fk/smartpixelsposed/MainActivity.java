@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
 
         SeekBar percentAlphaSeekBar = alphaView.findViewById(android.R.id.input);
         percentAlphaSeekBar.setProgress(alphaPercent);
-        percentAlphaSeekBar.setMax(SafeValueGetter.DIM_PERCENT_MAX);
+        percentAlphaSeekBar.setMax(SafeValueGetter.BARS_PERCENT_MAX);
         percentAlphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

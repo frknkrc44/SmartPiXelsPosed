@@ -8,6 +8,7 @@ import com.android.systemui.smartpixels.Grids;
 
 public class SafeValueGetter {
     public static final int DIM_PERCENT_MAX = 90;
+    public static final int BARS_PERCENT_MAX = 100;
 
     private SafeValueGetter() {}
 
@@ -62,7 +63,7 @@ public class SafeValueGetter {
                 SettingsSystem.SMART_PIXELS_BARS_ALPHA,
                 0
         );
-        return safeGet(value, DIM_PERCENT_MAX + 1);
+        return safeGet(value, BARS_PERCENT_MAX + 1);
     }
 
     public static boolean isSetDimOnSBDragEnabled(Context context) {

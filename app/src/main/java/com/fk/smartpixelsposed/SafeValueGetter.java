@@ -56,6 +56,15 @@ public class SafeValueGetter {
         return safeGet(value, DIM_PERCENT_MAX + 1);
     }
 
+    public static int getBarsAlphaPercent(Context context) {
+        int value = getSystemStrAsInt(
+                context,
+                SettingsSystem.SMART_PIXELS_BARS_ALPHA,
+                0
+        );
+        return safeGet(value, DIM_PERCENT_MAX + 1);
+    }
+
     public static boolean isSetDimOnSBDragEnabled(Context context) {
         int enabled = getSystemStrAsInt(
                 context,

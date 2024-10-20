@@ -6,6 +6,7 @@
     <string name="smart_pixels_on_power_save_title">Auto-enable on battery saver</string>
     <string name="smart_pixels_percent">Percent of pixels to disable</string>
     <string name="smart_pixels_dim_percent">Percent of dim to apply on transparent pixels</string>
+    <string name="smart_pixels_alpha_bars">Percent of alpha to apply on system bars</string>
     <string name="smart_pixels_set_dim_on_sb_drag">Set percent of dim when dragging your finger on status bar</string>
     <string name="smart_pixels_shift_title">Burn-in protection</string>
     <string name="smart_pixels_shift_summary">Prevents burn-in on OLED devices by shifting pixels every so often</string>

@@ -3,7 +3,6 @@ package com.fk.smartpixelsposed;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 @SuppressLint("PrivateApi")

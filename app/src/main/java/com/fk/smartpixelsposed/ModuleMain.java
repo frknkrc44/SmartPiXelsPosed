@@ -39,12 +39,16 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private static final String SETTINGSLIB_BSUTILS = "com.android.settingslib.fuelgauge.BatterySaverUtils";
 
+    private static final String SYSTEMUI_NBVIEW1 = "com.android.systemui.statusbar.phone.NavigationBarView";
+    private static final String SYSTEMUI_NBVIEW2 = "com.android.systemui.navigationbar.NavigationBarView";
+
     private static final String ID_STATUS_BAR_CONTENTS = "status_bar_contents";
     private static final String ID_NOTIFICATION_LIGHTS_OUT = "notification_lights_out";
     private static final String ID_SYSTEM_ICONS = "system_icons";
 
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
+    private View mNavBarView;
     private boolean mUsingWorkaroundForBS = false;
     private boolean mIsOEM = false;
 
@@ -130,6 +134,17 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bcCallbackClazz, "onPowerSaveChanged", powerSaverHook);
         }
 
+        Class<?> nbViewClazz = XposedHelpers.findClassIfExists(SYSTEMUI_NBVIEW1, lpparam.classLoader);
+        if (nbViewClazz == null) nbViewClazz = XposedHelpers.findClassIfExists(SYSTEMUI_NBVIEW2, lpparam.classLoader);
+        if (nbViewClazz != null) {
+            XposedBridge.hookAllConstructors(nbViewClazz, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    mNavBarView = (View) param.thisObject;
+                }
+            });
+        }
+
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
         XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
@@ -166,6 +181,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
 
                 updateSystemBarShifting();
+                updateSystemBarsAlpha();
             }
         });
 
@@ -198,6 +214,18 @@ public class ModuleMain implements IXposedHookLoadPackage {
         });
 
         mIsOEM = SystemProperties.isOEM();
+    }
+
+    private void updateSystemBarsAlpha() {
+        if (!(mStatusBarView != null && mSmartPixelsService != null && mSmartPixelsService.isEnabled())) {
+            return;
+        }
+
+        mStatusBarView.setAlpha(1.0f - (mSmartPixelsService.mBarsAlphaPercent / 100.0f));
+
+        if (mNavBarView != null) {
+            mNavBarView.setAlpha(mStatusBarView.getAlpha());
+        }
     }
 
     private void updateSystemBarShifting() {

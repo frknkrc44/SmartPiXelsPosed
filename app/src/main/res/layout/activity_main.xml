@@ -54,6 +54,12 @@
             layout="@layout/seekbar_title" />
 
         <include
+            android:id="@+id/settings_bars_alpha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/seekbar_title" />
+
+        <include
             android:id="@+id/settings_pattern"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

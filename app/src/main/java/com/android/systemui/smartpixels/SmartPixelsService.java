@@ -98,6 +98,7 @@ public abstract class SmartPixelsService {
             int enabledOnBatterySaver = intent.getIntExtra(SettingsSystem.SMART_PIXELS_ON_POWER_SAVE, mEnabledOnPowerSaver ? 1 : 0);
             int enableSystemBarsShift = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SYSTEM_BARS_SHIFT, mEnabledSystemBarsShift ? 1 : 0);
             int dimPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM, mDimPercent);
+            int barsAlphaPercent = intent.getIntExtra(SettingsSystem.SMART_PIXELS_BARS_ALPHA, mBarsAlphaPercent);
             int enabledDimDrag = intent.getIntExtra(SettingsSystem.SMART_PIXELS_DIM_DRAG, dimDragEnabled ? 1 : 0);
             int pattern = intent.getIntExtra(SettingsSystem.SMART_PIXELS_PATTERN, mPattern);
             int timeout = intent.getIntExtra(SettingsSystem.SMART_PIXELS_SHIFT_TIMEOUT, mShiftTimeout);
@@ -124,6 +125,11 @@ public abstract class SmartPixelsService {
             );
             Settings.System.putInt(
                     resolver,
+                    SettingsSystem.SMART_PIXELS_BARS_ALPHA,
+                    barsAlphaPercent
+            );
+            Settings.System.putInt(
+                    resolver,
                     SettingsSystem.SMART_PIXELS_DIM_DRAG,
                     enabledDimDrag
             );
@@ -147,6 +153,7 @@ public abstract class SmartPixelsService {
     private boolean mEnabledOnPowerSaver = false;
     public boolean mEnabledSystemBarsShift = false;
     private int mDimPercent = 0;
+    public int mBarsAlphaPercent = 0;
     private int mPattern = 3;
     private int mShiftTimeout = 4;
 
@@ -382,6 +389,7 @@ public abstract class SmartPixelsService {
         mEnabledOnPowerSaver = SafeValueGetter.getEnabledOnPowerSaver(mContext);
         mEnabledSystemBarsShift = SafeValueGetter.getSystemBarsShiftEnabled(mContext);
         mDimPercent = SafeValueGetter.getDimPercent(mContext);
+        mBarsAlphaPercent = SafeValueGetter.getBarsAlphaPercent(mContext);
         dimDragEnabled = SafeValueGetter.isSetDimOnSBDragEnabled(mContext);
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);

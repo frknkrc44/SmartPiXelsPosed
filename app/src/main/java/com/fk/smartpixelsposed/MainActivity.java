@@ -1,29 +1,21 @@
 package com.fk.smartpixelsposed;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.android.systemui.smartpixels.Grids;
 import com.android.systemui.smartpixels.SmartPixelsService;
 
 public class MainActivity extends Activity {
     private int dimPercent;
+    private int alphaPercent;
     private int pattern;
     private int timeout;
     private String[] percentStrs;
@@ -100,6 +92,33 @@ public class MainActivity extends Activity {
                 dimPercent = seekBar.getProgress();
                 percentTransText.setText(String.format("%s%%", dimPercent));
                 onOK(SettingsSystem.SMART_PIXELS_DIM, dimPercent);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        alphaPercent = SafeValueGetter.getBarsAlphaPercent(this);
+        View alphaView = findViewById(R.id.settings_bars_alpha);
+
+        TextView percentAlphaTitle = alphaView.findViewById(android.R.id.text1);
+        percentAlphaTitle.setText(R.string.smart_pixels_alpha_bars);
+
+        TextView percentAlphaText = alphaView.findViewById(android.R.id.text2);
+        percentAlphaText.setText(String.format("%s%%", alphaPercent));
+
+        SeekBar percentAlphaSeekBar = alphaView.findViewById(android.R.id.input);
+        percentAlphaSeekBar.setProgress(alphaPercent);
+        percentAlphaSeekBar.setMax(SafeValueGetter.DIM_PERCENT_MAX);
+        percentAlphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                alphaPercent = seekBar.getProgress();
+                percentAlphaText.setText(String.format("%s%%", alphaPercent));
+                onOK(SettingsSystem.SMART_PIXELS_BARS_ALPHA, alphaPercent);
             }
 
             @Override

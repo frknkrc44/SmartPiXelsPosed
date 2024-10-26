@@ -2,6 +2,10 @@
 
 A Xposed port of Smart Pixels feature.
 
+Support and updates:
+- [Channel](https://t.me/aerathfuns)
+- [Support Group](https://t.me/buggychat)
+
 ## Licensing
 
 I kept all of original license headers and added my own classes then licensed them with GNU Affero General Public License v3.

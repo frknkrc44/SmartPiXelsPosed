@@ -366,6 +366,10 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 return;
             }
 
+            if (mStatusBarView == null) {
+                return;
+            }
+
             XposedHelpers.callMethod(
                     mStatusBarView,
                     "onConfigurationChanged",
@@ -376,6 +380,10 @@ public class ModuleMain implements IXposedHookLoadPackage {
         @Override
         protected void onSettingsUpdated() {
             fromSettingsUpdate = true;
+
+            if (mStatusBarView == null) {
+                return;
+            }
 
             XposedHelpers.callMethod(
                     mStatusBarView,

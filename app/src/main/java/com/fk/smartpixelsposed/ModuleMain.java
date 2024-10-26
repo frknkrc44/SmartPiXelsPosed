@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
@@ -45,6 +46,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String ID_STATUS_BAR_CONTENTS = "status_bar_contents";
     private static final String ID_NOTIFICATION_LIGHTS_OUT = "notification_lights_out";
     private static final String ID_SYSTEM_ICONS = "system_icons";
+    private static final String ID_CENTERED_AREA = "centered_area";
+    private static final String ID_CLOCK_RIGHT_LAYOUT = "right_clock_layout";
 
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
@@ -241,6 +244,24 @@ public class ModuleMain implements IXposedHookLoadPackage {
         applyShiftingToView(ID_STATUS_BAR_CONTENTS, startPaddingAdd, topPaddingAdd, addToTop);
         applyShiftingToView(ID_NOTIFICATION_LIGHTS_OUT, startPaddingAdd, topPaddingAdd, addToTop);
         applyShiftingToView(ID_SYSTEM_ICONS, startPaddingAdd, topPaddingAdd, addToTop);
+        applyShiftingToView(ID_CENTERED_AREA, startPaddingAdd, topPaddingAdd, addToTop);
+
+        // fix right clock and system icons' look
+        setHeight(ID_SYSTEM_ICONS, ViewGroup.LayoutParams.MATCH_PARENT);
+        setHeight(ID_CLOCK_RIGHT_LAYOUT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void setHeight(String viewId, int height) {
+        XposedBridge.log("[SpSd - SH] ID: " + viewId + " H: " + height);
+
+        final Resources res = mStatusBarView.getResources();
+        final int stContentsId = res.getIdentifier(
+                viewId, "id", mStatusBarView.getContext().getPackageName());
+        View foundView = stContentsId == 0 ? null : mStatusBarView.findViewById(stContentsId);
+
+        if (foundView != null) {
+            foundView.getLayoutParams().height = height;
+        }
     }
 
     private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {

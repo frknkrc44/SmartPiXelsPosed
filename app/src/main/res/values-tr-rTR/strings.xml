@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="smart_pixels_title">Akıllı pikseller</string>
+    <string name="smart_pixels_enable_title">Akıllı pikselleri etkinleştir</string>
+    <string name="smart_pixels_on_power_save_title">Pil tasarrufu için otomatik etkinleştir</string>
+    <string name="smart_pixels_percent">Devre dışı bırakılan piksel yüzdesi</string>
+    <string name="smart_pixels_dim_percent">Transparan piksellere uygulanan opaklık yüzdesi</string>
+    <string name="smart_pixels_alpha_bars">Sistem barlarının şeffaflık yüzdesi</string>
+    <string name="smart_pixels_set_dim_on_sb_drag">Üst barda parmak kaydırarak opaklık yüzdesini değiştir</string>
+    <string name="smart_pixels_shift_title">Yanma koruması</string>
+    <string name="smart_pixels_shift_summary" tools:ignore="Typos">OLED cihazlarda yanmaları önler ve sık sık pikselleri kaydırır</string>
+    <string name="smart_pixels_system_bars_shifting_title">Sistem barlarını kaydırmayı etkinleştir</string>
+
+    <string name="custom_timeout_summary_15secs">15sn</string>
+    <string name="custom_timeout_summary_30secs">30sn</string>
+    <string name="custom_timeout_summary_1min">1dk</string>
+    <string name="custom_timeout_summary_2mins">2dk</string>
+    <string name="custom_timeout_summary_5mins">5dk</string>
+    <string name="custom_timeout_summary_10mins">10dk</string>
+    <string name="custom_timeout_summary_20mins">20dk</string>
+    <string name="custom_timeout_summary_30mins">30dk</string>
+    <string name="custom_timeout_summary_1hour">1sa</string>
+</resources>

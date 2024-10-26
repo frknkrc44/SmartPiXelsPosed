@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Pixeli inteligenți</string>
+    <string name="smart_pixels_enable_title">Activează pixeli inteligenți</string>
+    <string name="smart_pixels_on_power_save_title">Activare automată la economisirea bateriei</string>
+    <string name="smart_pixels_percent">Procent de pixeli pentru dezactivare</string>
+    <string name="smart_pixels_shift_title">Protecție burn-in ecran</string>
+    <string name="smart_pixels_shift_summary">Împiedică deteriorarea pixelilor pe dispozitivele OLED prin deplasarea acestora la intervale frecvente</string>
+</resources>

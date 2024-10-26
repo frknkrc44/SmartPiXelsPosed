@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Slimme Pixels</string>
+    <string name="smart_pixels_enable_title">Slimme Pixels inschakelen</string>
+    <string name="smart_pixels_on_power_save_title">Automatisch inschakelen bij ingeschakelde energiebesparing</string>
+    <string name="smart_pixels_percent">Percentage uit te schakelen pixels</string>
+    <string name="smart_pixels_shift_title">Inbrand-bescherming</string>
+    <string name="smart_pixels_shift_summary">Voorkomt inbranden op OLED schermen door regelmatig pixels te verschuiven</string>
+</resources>

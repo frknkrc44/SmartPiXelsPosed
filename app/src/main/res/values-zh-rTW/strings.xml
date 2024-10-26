@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">智慧像素</string>
+    <string name="smart_pixels_enable_title">啟用智慧像素</string>
+    <string name="smart_pixels_on_power_save_title">在省電模式下自動啟用</string>
+    <string name="smart_pixels_percent">停用的像素百分比</string>
+    <string name="smart_pixels_shift_title">螢幕烙印保護</string>
+    <string name="smart_pixels_shift_summary">透過不時移動像素的位置來防止使用 OLED 螢幕的裝置產生烙印</string>
+</resources>

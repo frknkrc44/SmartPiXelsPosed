@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">স্মার্ট পিক্সেল</string>
+    <string name="smart_pixels_enable_title">স্মার্ট পিক্সেল সক্ষম করুন</string>
+    <string name="smart_pixels_on_power_save_title">স্বয়ংক্রিয়ভাবে ব্যাটারি সেভার চালু করুন</string>
+    <string name="smart_pixels_percent">অক্ষম করার জন্য পিক্সেলের শতকরা হার</string>
+    <string name="smart_pixels_shift_title">বার্ন ইন সুরক্ষা</string>
+    <string name="smart_pixels_shift_summary">OLED ডিভাইসে বার বার পিক্সেল স্থানান্তর করে বার্ন-ইন প্রতিরোধ করে</string>
+</resources>

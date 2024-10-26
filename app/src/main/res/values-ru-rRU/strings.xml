@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Умные пиксели</string>
+    <string name="smart_pixels_enable_title">Включить Умные пиксели</string>
+    <string name="smart_pixels_on_power_save_title">Включать в режиме энергосбережения</string>
+    <string name="smart_pixels_percent">Процент отключаемых пикселей</string>
+    <string name="smart_pixels_dim_percent">Процент затемнения, применяемый к прозрачным пикселям</string>
+    <string name="smart_pixels_set_dim_on_sb_drag">Установить процент затемнения при свайпе пальцем по строке состояния</string>
+    <string name="smart_pixels_shift_title">Защита от выгорания</string>
+    <string name="smart_pixels_shift_summary">Предотвращение выгорания OLED экранов путём смещения пикселей с некоторой частотой</string>
+    <string name="smart_pixels_system_bars_shifting_title">Включить смещение системных панелей</string>
+</resources>

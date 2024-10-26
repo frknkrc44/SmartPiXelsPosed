@@ -23,4 +23,9 @@
         <item>@string/custom_timeout_summary_30mins</item>
         <item>@string/custom_timeout_summary_1hour</item>
     </string-array>
+
+    <!-- Xposed -->
+    <string-array name="xposed_scopes" translatable="false">
+        <item>com.android.systemui</item>
+    </string-array>
 </resources>

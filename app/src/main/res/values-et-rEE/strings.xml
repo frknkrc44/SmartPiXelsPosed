@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Targad pikslid</string>
+    <string name="smart_pixels_enable_title">Luba targad pikslid</string>
+    <string name="smart_pixels_on_power_save_title">Luba akusäästjaga automaatselt</string>
+    <string name="smart_pixels_percent">Keelatavate pikslite protsent</string>
+    <string name="smart_pixels_shift_title">Sissepõlemise kaitse</string>
+    <string name="smart_pixels_shift_summary">Väldib OLED-ekraanidel sissepõlemist, nihutades aeg-ajalt piksleid</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Smarta Pixlar</string>
+    <string name="smart_pixels_enable_title">Aktivera Smarta Pixlar</string>
+    <string name="smart_pixels_on_power_save_title">Automatisk aktivering vid batterisparläge</string>
+    <string name="smart_pixels_percent">Procent av pixlar att inaktivera</string>
+    <string name="smart_pixels_shift_title">Skydd mot inbränning</string>
+    <string name="smart_pixels_shift_summary">Förhindrar inbränning på OLED enheter genom att skifta pixlar så ofta</string>
+</resources>

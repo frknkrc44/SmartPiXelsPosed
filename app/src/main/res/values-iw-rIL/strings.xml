@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">פיקסלים חכמים</string>
+    <string name="smart_pixels_enable_title">התרת פיקסלים חכמים</string>
+    <string name="smart_pixels_on_power_save_title">התרה אוטומטית במצב חסכון בסוללה</string>
+    <string name="smart_pixels_percent">אחוז הפיקסלים שיושבתו</string>
+    <string name="smart_pixels_shift_title">הגנה מצריבות מסך</string>
+    <string name="smart_pixels_shift_summary">מניעת צריבות מסך במסכי OLED ע\"י הזזת פיקסלים תכופה</string>
+</resources>

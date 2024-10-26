@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Píxeis Inteligentes</string>
+    <string name="smart_pixels_enable_title">Ativar os Píxeis Inteligentes</string>
+    <string name="smart_pixels_on_power_save_title">Ativar automaticamente na economia de bateria</string>
+    <string name="smart_pixels_percent">Percentagem de píxeis a desativar</string>
+    <string name="smart_pixels_shift_title">Proteção contra burn-in</string>
+    <string name="smart_pixels_shift_summary">Previne o efeito burn-in em ecrãs OLED alternando píxeis ocasionalmente</string>
+</resources>

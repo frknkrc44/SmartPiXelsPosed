@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Разумныя пікселі</string>
+    <string name="smart_pixels_enable_title">Уключыць разумныя пікселі</string>
+    <string name="smart_pixels_on_power_save_title">Аўтаматычнае ўключэнне пры энэргазахаванні</string>
+    <string name="smart_pixels_percent">Адсотак пікселяў, для адключэння</string>
+    <string name="smart_pixels_shift_title">Абарона ад выгарання</string>
+    <string name="smart_pixels_shift_summary">Пазбягайце выгаранне экрана OLED, перамяшчаючы час ад часу пікселі</string>
+</resources>

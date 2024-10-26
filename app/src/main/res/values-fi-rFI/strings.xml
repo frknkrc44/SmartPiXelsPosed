@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Älykkäät pikselit</string>
+    <string name="smart_pixels_enable_title">Ota älykkäät pikselit käyttöön</string>
+    <string name="smart_pixels_on_power_save_title">Ota automaattisesti käyttöön virransäästö tilassa</string>
+    <string name="smart_pixels_percent">Sammutettavien pikseleiden prosenttiosuus</string>
+    <string name="smart_pixels_shift_title">Kiinnipalamisen suojaus</string>
+    <string name="smart_pixels_shift_summary">Estää kiinnipalamisen OLED laitteilla vaihtamalla käytössä olevia pikseleitä vähän väliä</string>
+</resources>

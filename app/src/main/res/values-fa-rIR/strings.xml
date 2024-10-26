@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">پیکسل های هوشمند</string>
+    <string name="smart_pixels_enable_title">فعال کردن حالت پیکسل های هوشمند</string>
+    <string name="smart_pixels_on_power_save_title">فعال شدن خودکار با ذخیره کننده نیرو</string>
+    <string name="smart_pixels_percent">تنظیم درصد پیکسل ها برای خاموش شدن</string>
+    <string name="smart_pixels_shift_title">محافظت از سوختگی پیکسل ها</string>
+    <string name="smart_pixels_shift_summary">جلوگیری از سوختگی دستگاه های OLED با جابجایی هر چند وقت یکبار پیکسل ها</string>
+</resources>

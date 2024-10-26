@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Smart Pixels</string>
+    <string name="smart_pixels_enable_title">Omogoči Smart Pixels</string>
+    <string name="smart_pixels_on_power_save_title">Samodejno omogoči ob varčevanju z energijo baterije</string>
+    <string name="smart_pixels_percent">Odstotek pik za onemogočanje</string>
+    <string name="smart_pixels_shift_title">Zaščita pred vtisnjenjem</string>
+    <string name="smart_pixels_shift_summary">Prepreči vtisnjenje na OLED napravah z občasnim premikom pik</string>
+</resources>

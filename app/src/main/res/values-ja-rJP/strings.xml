@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">スマートピクセル</string>
+    <string name="smart_pixels_enable_title">スマートピクセルを有効化</string>
+    <string name="smart_pixels_on_power_save_title">バッテリーセーバー時に自動的に有効化</string>
+    <string name="smart_pixels_percent">無効にするピクセルの割合</string>
+    <string name="smart_pixels_shift_title">焼き付き保護</string>
+    <string name="smart_pixels_shift_summary">使用するピクセルをたまにずらすことで、有機 EL ディスプレイの焼き付きを回避します</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Píxeles inteligentes</string>
+    <string name="smart_pixels_enable_title">Activar píxeles inteligentes</string>
+    <string name="smart_pixels_on_power_save_title">Activar automáticamente con el ahorro de batería</string>
+    <string name="smart_pixels_percent">Porcentaje de píxeles a desactivar</string>
+    <string name="smart_pixels_shift_title">Protección antiquemado</string>
+    <string name="smart_pixels_shift_summary">Previene el quemado en pantallas OLED alternando píxeles</string>
+</resources>

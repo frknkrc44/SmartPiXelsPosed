@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Smart Pixels</string>
+    <string name="smart_pixels_enable_title">Aktivér Smart Pixels</string>
+    <string name="smart_pixels_on_power_save_title">Auto-aktivér i batterisparetilstand</string>
+    <string name="smart_pixels_percent">Procent af pixels, som skal slukkes</string>
+    <string name="smart_pixels_shift_title">Indbrændingsbeskyttelse</string>
+    <string name="smart_pixels_shift_summary">Forhindrer indbrænding på OLED-skærme ved at skifte pixel en gang imellem</string>
+</resources>

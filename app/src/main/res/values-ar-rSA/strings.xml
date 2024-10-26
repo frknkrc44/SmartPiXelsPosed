@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">الدقة الذكية</string>
+    <string name="smart_pixels_enable_title">تفعيل الدقة الذكية</string>
+    <string name="smart_pixels_on_power_save_title">تمكين تلقائي في وضع توفير الطاقة</string>
+    <string name="smart_pixels_percent">النسبة المئوية للبيكسلات لتعطيلها</string>
+    <string name="smart_pixels_shift_title">الحماية من الاحتراق</string>
+    <string name="smart_pixels_shift_summary">تمنع الحماية من الإحتراق Burn-in  على أجهزة OLED عن طريق تحويل وحدات البكسل بين الحين و الآخر.</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Ağıllı Piksellər</string>
+    <string name="smart_pixels_enable_title">Smart Pikselləri aktivləşdirin</string>
+    <string name="smart_pixels_on_power_save_title">Batareya qənaəti üçün avtomatik aktivləşdirin</string>
+    <string name="smart_pixels_percent">Deaktiv ediləcək piksellərin faizi</string>
+    <string name="smart_pixels_shift_title">Yanmağa qarşı qorunma</string>
+    <string name="smart_pixels_shift_summary">Pikselləri tez-tez dəyişdirərək OLED cihazlarda yanmağın qarşısını alır</string>
+</resources>

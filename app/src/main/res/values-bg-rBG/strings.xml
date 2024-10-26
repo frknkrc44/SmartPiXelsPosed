@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Малки пиксели</string>
+    <string name="smart_pixels_enable_title">Включи малки пиксели</string>
+    <string name="smart_pixels_on_power_save_title">Автоматично включване при режим на запазване на батерията</string>
+    <string name="smart_pixels_percent">Проценти на пикселите за изключване</string>
+    <string name="smart_pixels_shift_title">Защита от изгаряне</string>
+    <string name="smart_pixels_shift_summary">Предотвратява изгарянето на OLED устройства чрез изместване на пикселите от време на време</string>
+</resources>

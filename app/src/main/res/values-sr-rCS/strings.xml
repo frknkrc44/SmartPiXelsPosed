@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">Pametni piskeli</string>
+    <string name="smart_pixels_enable_title">Uključi Pametne piksele</string>
+    <string name="smart_pixels_on_power_save_title">Automatski uključi čuvara baterije</string>
+    <string name="smart_pixels_percent">Procenat piksela za isključivanje</string>
+    <string name="smart_pixels_shift_title">Zaštita od burn-in efekta</string>
+    <string name="smart_pixels_shift_summary">Štiti OLED ekrane od burn-in efekta tako što često razmenjuje piksele</string>
+</resources>

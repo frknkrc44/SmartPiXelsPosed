@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">스마트 픽셀</string>
+    <string name="smart_pixels_enable_title">스마트 픽셀 켜기</string>
+    <string name="smart_pixels_on_power_save_title">배터리 세이버 자동 실행</string>
+    <string name="smart_pixels_percent">사용 중지 할 픽셀 비율</string>
+    <string name="smart_pixels_shift_title">번인 방지</string>
+    <string name="smart_pixels_shift_summary">픽셀을 자주 이동시켜 OLED 장치의 번인을 방지합니다.</string>
+</resources>

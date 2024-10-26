@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="smart_pixels_title">اسمارٹ پکسلز</string>
+    <string name="smart_pixels_enable_title">اسمارٹ پکسلز کو فعال کریں۔</string>
+    <string name="smart_pixels_on_power_save_title">بیٹری سیور پر خودکار طور پر فعال کریں۔</string>
+    <string name="smart_pixels_percent">غیر فعال کرنے کے لیے پکسلز کا فیصد</string>
+    <string name="smart_pixels_shift_title">سکرین کو جلنے سے بچانے کیلئے</string>
+    <string name="smart_pixels_shift_summary">OLED ڈیوائسز پر بار بار پکسلز شفٹ کر کے برن ان کو روکتا ہے۔</string>
+</resources>

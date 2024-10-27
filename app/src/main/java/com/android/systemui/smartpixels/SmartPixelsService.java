@@ -68,7 +68,7 @@ import com.fk.smartpixelsposed.SettingsSystem;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class SmartPixelsService {
+public abstract class SmartPixelsService {
     public static final String LOG = "SmartPixelsService";
     public static final String INTENT_ACTION = "com.android.systemui.action.SMART_PIXELS_REFRESH";
 
@@ -84,9 +84,9 @@ public class SmartPixelsService {
 
     private int startCounter = 0;
     private Context mContext;
+    private Handler mHandler;
     private int orientation;
     private ContentObserver mObserver;
-    private Handler mHandler;
     private IntentFilter mSettingsIntentFilter;
 
     public final BroadcastReceiver mSettingsReceiver = new BroadcastReceiver() {
@@ -396,8 +396,11 @@ public class SmartPixelsService {
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
 
-        onConfigurationChanged(null);
+        updatePattern();
+        onSettingsUpdated();
     }
+
+    protected abstract void onSettingsUpdated();
 
     private class SmartPixelsObserver extends ContentObserver {
         public SmartPixelsObserver() {

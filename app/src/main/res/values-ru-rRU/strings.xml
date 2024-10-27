@@ -5,8 +5,19 @@
     <string name="smart_pixels_on_power_save_title">Включать в режиме энергосбережения</string>
     <string name="smart_pixels_percent">Процент отключаемых пикселей</string>
     <string name="smart_pixels_dim_percent">Процент затемнения, применяемый к прозрачным пикселям</string>
+    <string name="smart_pixels_alpha_bars">Процент альфа для применения на системных панелях</string>
     <string name="smart_pixels_set_dim_on_sb_drag">Установить процент затемнения при свайпе пальцем по строке состояния</string>
     <string name="smart_pixels_shift_title">Защита от выгорания</string>
     <string name="smart_pixels_shift_summary">Предотвращение выгорания OLED экранов путём смещения пикселей с некоторой частотой</string>
     <string name="smart_pixels_system_bars_shifting_title">Включить смещение системных панелей</string>
+
+    <string name="custom_timeout_summary_15secs">15с</string>
+    <string name="custom_timeout_summary_30secs">30с</string>
+    <string name="custom_timeout_summary_1min">1м</string>
+    <string name="custom_timeout_summary_2mins">2м</string>
+    <string name="custom_timeout_summary_5mins">5м</string>
+    <string name="custom_timeout_summary_10mins">10м</string>
+    <string name="custom_timeout_summary_20mins">20м</string>
+    <string name="custom_timeout_summary_30mins">30м</string>
+    <string name="custom_timeout_summary_1hour">1ч</string>
 </resources>

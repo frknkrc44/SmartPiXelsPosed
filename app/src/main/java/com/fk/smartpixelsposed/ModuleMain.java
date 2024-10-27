@@ -221,11 +221,15 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void updateSystemBarsAlpha() {
-        if (!(mStatusBarView != null && mSmartPixelsService != null && mSmartPixelsService.isEnabled())) {
+        if (!(mStatusBarView != null && mSmartPixelsService != null)) {
             return;
         }
 
-        mStatusBarView.setAlpha(1.0f - (mSmartPixelsService.mBarsAlphaPercent / 100.0f));
+        mStatusBarView.setAlpha(
+                mSmartPixelsService.isEnabled()
+                        ? 1.0f - (mSmartPixelsService.mBarsAlphaPercent / 100.0f)
+                        : 1
+        );
 
         if (mNavBarView != null) {
             mNavBarView.setAlpha(mStatusBarView.getAlpha());

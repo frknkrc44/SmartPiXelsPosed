@@ -68,7 +68,7 @@ import com.fk.smartpixelsposed.SettingsSystem;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public abstract class SmartPixelsService {
+public class SmartPixelsService {
     public static final String LOG = "SmartPixelsService";
     public static final String INTENT_ACTION = "com.android.systemui.action.SMART_PIXELS_REFRESH";
 
@@ -76,7 +76,7 @@ public abstract class SmartPixelsService {
     private View view = null;
     private BitmapDrawable draw;
 
-    private boolean destroyed = false;
+    protected boolean destroyed = true;
     public boolean running = false;
     public boolean useAlternativeMethodForBS = false;
     public boolean batterySaverEnabled = false;
@@ -176,7 +176,7 @@ public abstract class SmartPixelsService {
         mContext = context;
         mHandler = handler;
 
-        Configuration conf =  context.getResources().getConfiguration();
+        Configuration conf = context.getResources().getConfiguration();
         orientation = conf.orientation;
 
         updateSettings();
@@ -297,14 +297,17 @@ public abstract class SmartPixelsService {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        if (orientation == newConfig.orientation) {
-            return;
+        if (newConfig != null) {
+            if (orientation == newConfig.orientation) {
+                return;
+            }
+
+            orientation = newConfig.orientation;
         }
 
-        orientation = newConfig.orientation;
         updatePattern();
 
-        if (view.getParent() != null) {
+        if (view != null && view.getParent() != null) {
             Log.d(LOG, "Screen orientation or smallest width changed, updating window layout");
 
             WindowManager.LayoutParams params = getLayoutParams();
@@ -368,17 +371,16 @@ public abstract class SmartPixelsService {
     }
 
     private void updatePattern() {
+        if (draw == null) {
+            return;
+        }
+
         drawPattern(draw.getBitmap(), mPattern, getShift(), getDimColor());
 
         if (view != null) {
             view.invalidate();
         }
-
-        onPatternUpdated();
     }
-
-    protected abstract void onPatternUpdated();
-    protected abstract void onSettingsUpdated();
 
     private int getDimColor() {
         return Color.argb((int) ((mDimPercent / 100.0f) * 255), 0, 0, 0);
@@ -394,7 +396,7 @@ public abstract class SmartPixelsService {
         mPattern = SafeValueGetter.getPattern(mContext);
         mShiftTimeout = SafeValueGetter.getShiftTimeout(mContext);
 
-        onSettingsUpdated();
+        onConfigurationChanged(null);
     }
 
     private class SmartPixelsObserver extends ContentObserver {

@@ -158,7 +158,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
                 if (mSmartPixelsService == null) {
                     try {
-                        mSmartPixelsService = new SmartPixelsServiceImpl(mStatusBarView.getContext(), mStatusBarView.getHandler());
+                        mSmartPixelsService = new SmartPixelsService(mStatusBarView.getContext(), mStatusBarView.getHandler());
                         mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
                     } catch (Throwable e) {
                         XposedBridge.log(e);
@@ -372,45 +372,4 @@ public class ModuleMain implements IXposedHookLoadPackage {
         mSmartPixelsService.mSettingsReceiver.onReceive(statusBarContext, refreshIntent);
     }
     // --- GravityBox inspirations - end --- //
-
-    private class SmartPixelsServiceImpl extends SmartPixelsService {
-        private boolean fromSettingsUpdate = false;
-
-        public SmartPixelsServiceImpl(Context context, Handler handler) {
-            super(context, handler);
-        }
-
-        @Override
-        protected void onPatternUpdated() {
-            if (fromSettingsUpdate) {
-                fromSettingsUpdate = false;
-                return;
-            }
-
-            if (mStatusBarView == null) {
-                return;
-            }
-
-            XposedHelpers.callMethod(
-                    mStatusBarView,
-                    "onConfigurationChanged",
-                    mStatusBarView.getResources().getConfiguration()
-            );
-        }
-
-        @Override
-        protected void onSettingsUpdated() {
-            fromSettingsUpdate = true;
-
-            if (mStatusBarView == null) {
-                return;
-            }
-
-            XposedHelpers.callMethod(
-                    mStatusBarView,
-                    "onConfigurationChanged",
-                    mStatusBarView.getResources().getConfiguration()
-            );
-        }
-    }
 }

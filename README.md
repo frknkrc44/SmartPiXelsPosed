@@ -6,6 +6,12 @@ Support and updates:
 - [Channel](https://t.me/aerathfuns)
 - [Support Group](https://t.me/buggychat)
 
+## Screenshots
+
+<div align="center">
+	<img src="./.github/images/screenshot.png" width="275px" />
+</div>
+
 ## Licensing
 
 I kept all of original license headers and added my own classes then licensed them with GNU Affero General Public License v3.

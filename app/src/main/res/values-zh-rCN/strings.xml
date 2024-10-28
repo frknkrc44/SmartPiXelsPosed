@@ -4,6 +4,7 @@
     <string name="smart_pixels_enable_title">自动启用智能像素</string>
     <string name="smart_pixels_on_power_save_title">省电模式时自动启用</string>
     <string name="smart_pixels_percent">禁用的像素数量</string>
+    <string name="smart_pixels_dim_percent">应用于透明像素的不透明度百分比</string>
     <string name="smart_pixels_alpha_bars">透明像素百分比</string>
     <string name="smart_pixels_set_dim_on_sb_drag">在状态栏上拖动亮度百分比</string>
     <string name="smart_pixels_shift_title">智能像素防护</string>

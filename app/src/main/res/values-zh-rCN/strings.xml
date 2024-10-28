@@ -13,8 +13,8 @@
     <string name="smart_pixels_on_power_save_title">省电模式时自动启用</string>
     <string name="smart_pixels_percent">禁用的像素数量</string>
     <string name="smart_pixels_shift_title">智能像素防护</string>
-	<string name="smart_pixels_system_bars_shifting_title">启用状态栏移动</string>
-	<string name="smart_pixels_alpha_bars">透明像素百分比</string>
-	<string name="smart_pixels_set_dim_on_sb_drag">在状态栏上拖动亮度百分比</string>
+    <string name="smart_pixels_system_bars_shifting_title">启用状态栏移动</string>
+    <string name="smart_pixels_alpha_bars">透明像素百分比</string>
+    <string name="smart_pixels_set_dim_on_sb_drag">在状态栏上拖动亮度百分比</string>
     <string name="smart_pixels_shift_summary">通过移动屏幕像素来防止使用 OLED 屏幕的设备发生烧屏</string>
 </resources>

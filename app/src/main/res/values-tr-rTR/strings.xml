@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="smart_pixels_title">Akıllı pikseller</string>
     <string name="smart_pixels_enable_title">Akıllı pikselleri etkinleştir</string>
     <string name="smart_pixels_on_power_save_title">Pil tasarrufu için otomatik etkinleştir</string>
@@ -8,7 +8,7 @@
     <string name="smart_pixels_alpha_bars">Sistem barlarının şeffaflık yüzdesi</string>
     <string name="smart_pixels_set_dim_on_sb_drag">Üst barda parmak kaydırarak opaklık yüzdesini değiştir</string>
     <string name="smart_pixels_shift_title">Yanma koruması</string>
-    <string name="smart_pixels_shift_summary" tools:ignore="Typos">OLED cihazlarda yanmaları önler ve sık sık pikselleri kaydırır</string>
+    <string name="smart_pixels_shift_summary">OLED cihazlarda yanmaları önler ve sıkça pikselleri kaydırır</string>
     <string name="smart_pixels_system_bars_shifting_title">Sistem barlarını kaydırmayı etkinleştir</string>
 
     <string name="custom_timeout_summary_15secs">15sn</string>

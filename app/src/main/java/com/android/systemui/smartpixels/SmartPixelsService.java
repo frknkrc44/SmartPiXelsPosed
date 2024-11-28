@@ -86,6 +86,8 @@ public abstract class SmartPixelsService {
     private Context mContext;
     private Handler mHandler;
     private int orientation;
+    private int deviceWidth;
+    private int deviceHeight;
     private ContentObserver mObserver;
     private IntentFilter mSettingsIntentFilter;
 
@@ -178,6 +180,8 @@ public abstract class SmartPixelsService {
 
         Configuration conf = context.getResources().getConfiguration();
         orientation = conf.orientation;
+        deviceWidth = conf.screenWidthDp;
+        deviceHeight = conf.screenHeightDp;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -298,7 +302,7 @@ public abstract class SmartPixelsService {
 
     public void onConfigurationChanged(Configuration newConfig) {
         if (newConfig != null) {
-            if (orientation == newConfig.orientation) {
+            if (deviceWidth == newConfig.screenWidthDp && deviceHeight == newConfig.screenHeightDp && orientation == newConfig.orientation) {
                 return;
             }
 

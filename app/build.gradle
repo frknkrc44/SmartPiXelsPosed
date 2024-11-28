@@ -14,9 +14,9 @@ android {
         applicationId "com.fk.smartpixelsposed"
         minSdk 24
         targetSdk 34
-        versionCode 10
-        versionName "1.10"
-        multiDexEnabled true
+        versionCode 11
+        versionName "1.11"
+        multiDexEnabled false
     }
 
     buildTypes {

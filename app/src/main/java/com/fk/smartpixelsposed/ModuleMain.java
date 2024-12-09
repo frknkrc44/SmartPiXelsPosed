@@ -167,6 +167,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 }
 
                 mSmartPixelsService.startFilter();
+                updateSystemBarShifting();
+                updateSystemBarsAlpha();
             }
         });
 
@@ -176,6 +178,10 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 XposedBridge.log("[SpSd - CC] " + param.thisObject + " " + param.method.getName());
 
                 mStatusBarView = (View) param.thisObject;
+
+                if (mSmartPixelsService == null) {
+                    return;
+                }
 
                 try {
                     Configuration conf = (Configuration) param.args[0];

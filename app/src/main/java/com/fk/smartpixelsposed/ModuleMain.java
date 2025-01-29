@@ -15,12 +15,15 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
+
+import java.lang.reflect.Method;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -31,6 +34,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 @SuppressLint("DiscouragedApi")
 public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_PKG = "com.android.systemui";
+    private static final String SYSTEMUI_APP = SYSTEMUI_PKG + ".SystemUIApplication";
+    private static final String SYSTEMUI_PANELBAR = SYSTEMUI_PKG + ".statusbar.phone.PanelBar";
     private static final String SYSTEMUI_SB = SYSTEMUI_PKG + ".statusbar.phone.PhoneStatusBarView";
     private static final String SYSTEMUI_BC = SYSTEMUI_PKG + ".statusbar.policy.BatteryController";
     private static final String SYSTEMUI_BCIMPL = SYSTEMUI_PKG + ".statusbar.policy.BatteryControllerImpl";
@@ -55,12 +60,20 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private boolean mUsingWorkaroundForBS = false;
     private boolean mIsOEM = false;
 
+    // classes for alternative inject points
+    private Class<?> clazzPanelBar = null;
+    private Class<?> clazzApp = null;
+
     // --- GravityBox inspirations - start --- //
     private int mLinger;
     private boolean mJustPeeked;
     private int mInitialTouchX;
     private int mInitialTouchY;
     // --- GravityBox inspirations - end --- //
+
+    public boolean isAlternativeInjectEnabled() {
+        return clazzPanelBar != null || clazzApp != null;
+    }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -149,7 +162,14 @@ public class ModuleMain implements IXposedHookLoadPackage {
         }
 
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
-        XposedHelpers.findAndHookMethod(clazz2, "onAttachedToWindow", new XC_MethodHook() {
+
+        Method onAttachedToWindowMethod = XposedHelpers.findMethodExactIfExists(clazz2, "onAttachedToWindow");
+        if (onAttachedToWindowMethod == null) {
+            clazzPanelBar = XposedHelpers.findClassIfExists(SYSTEMUI_PANELBAR, lpparam.classLoader);
+            clazzApp = XposedHelpers.findClassIfExists(SYSTEMUI_APP, lpparam.classLoader);
+        }
+
+        XposedHelpers.findAndHookMethod(clazzPanelBar != null ? clazzPanelBar : clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 XposedBridge.log("[SpSd - AW] " + param.thisObject + " " + param.method.getName());
@@ -160,6 +180,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
                     try {
                         mSmartPixelsService = new SmartPixelsServiceImpl(mStatusBarView.getContext(), mStatusBarView.getHandler());
                         mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
+                        mSmartPixelsService.usingAltLogic = isAlternativeInjectEnabled();
                     } catch (Throwable e) {
                         XposedBridge.log(e);
                         return;
@@ -172,7 +193,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
             }
         });
 
-        XposedHelpers.findAndHookMethod(clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(clazzApp != null ? clazzApp : clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 XposedBridge.log("[SpSd - CC] " + param.thisObject + " " + param.method.getName());
@@ -195,7 +216,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
             }
         });
 
-        XposedHelpers.findAndHookMethod(clazz2, "onDetachedFromWindow", new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(clazzPanelBar != null ? clazzPanelBar : clazz2, "onDetachedFromWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 XposedBridge.log("[SpSd - DW] " + param.thisObject + " " + param.method.getName());
@@ -227,6 +248,16 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void updateSystemBarsAlpha() {
+        if (isAlternativeInjectEnabled()) {
+            Settings.System.putInt(
+                    mStatusBarView.getContext().getContentResolver(),
+                    SettingsSystem.SMART_PIXELS_ALT_LOGIC,
+                    1
+            );
+
+            return;
+        }
+
         if (!(mStatusBarView != null && mSmartPixelsService != null)) {
             return;
         }

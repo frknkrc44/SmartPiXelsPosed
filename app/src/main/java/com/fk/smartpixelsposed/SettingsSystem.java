@@ -20,4 +20,5 @@ public class SettingsSystem {
     public static final String SMART_PIXELS_DIM = SMART_PIXELS_PREFIX + "smart_pixels_dim";
     public static final String SMART_PIXELS_BARS_ALPHA = SMART_PIXELS_PREFIX + "smart_pixels_bars_alpha";
     public static final String SMART_PIXELS_DIM_DRAG = SMART_PIXELS_PREFIX + "smart_pixels_dim_drag";
+    public static final String SMART_PIXELS_ALT_LOGIC = SMART_PIXELS_PREFIX + "smart_pixels_alt_logic";
 }

@@ -81,6 +81,7 @@ public abstract class SmartPixelsService {
     public boolean useAlternativeMethodForBS = false;
     public boolean batterySaverEnabled = false;
     public boolean dimDragEnabled = false;
+    public boolean usingAltLogic = false;
 
     private int startCounter = 0;
     private Context mContext;
@@ -349,7 +350,12 @@ public abstract class SmartPixelsService {
             // Use the rounded corners overlay to hide it from screenshots. See 132c9f514.
             // Use the trusted overlay to use it on some security required screens like VPN dialogs.
             int val = XposedHelpers.getIntField(params, "privateFlags");
-            val |= PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY | PRIVATE_FLAG_TRUSTED_OVERLAY;
+            val |= PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY;
+
+            if (!usingAltLogic) {
+                val |= PRIVATE_FLAG_TRUSTED_OVERLAY;
+            }
+
             XposedHelpers.setIntField(params, "privateFlags", val);
         } catch (Throwable throwable) {
             XposedBridge.log(throwable);

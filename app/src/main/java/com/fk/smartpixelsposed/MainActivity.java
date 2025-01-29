@@ -111,6 +111,7 @@ public class MainActivity extends Activity {
         percentAlphaText.setText(String.format("%s%%", alphaPercent));
 
         SeekBar percentAlphaSeekBar = alphaView.findViewById(android.R.id.input);
+        percentAlphaSeekBar.setEnabled(SafeValueGetter.getUsingAltLogic(this) < 1);
         percentAlphaSeekBar.setProgress(alphaPercent);
         percentAlphaSeekBar.setMax(SafeValueGetter.BARS_PERCENT_MAX);
         percentAlphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

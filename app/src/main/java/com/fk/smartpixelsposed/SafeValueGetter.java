@@ -93,6 +93,15 @@ public class SafeValueGetter {
         return safeGet(value, Grids.ShiftTimeouts.length);
     }
 
+    public static int getUsingAltLogic(Context context) {
+        int value = getSystemStrAsInt(
+                context,
+                SettingsSystem.SMART_PIXELS_ALT_LOGIC,
+                0
+        );
+        return safeGet(value, 2);
+    }
+
     private static int getGlobalStrAsInt(Context context, String key, int def) {
         String value = Settings.Global.getString(
                 context.getContentResolver(),

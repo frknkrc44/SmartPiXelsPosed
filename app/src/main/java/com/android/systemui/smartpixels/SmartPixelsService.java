@@ -89,6 +89,7 @@ public abstract class SmartPixelsService {
     private int orientation;
     private int deviceWidth;
     private int deviceHeight;
+    private int densityDpi;
     private ContentObserver mObserver;
     private IntentFilter mSettingsIntentFilter;
 
@@ -183,6 +184,7 @@ public abstract class SmartPixelsService {
         orientation = conf.orientation;
         deviceWidth = conf.screenWidthDp;
         deviceHeight = conf.screenHeightDp;
+        densityDpi = conf.densityDpi;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -218,15 +220,8 @@ public abstract class SmartPixelsService {
         }
 
         if (draw == null) {
-            Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
-            draw = new BitmapDrawable(mContext.getResources(), bmp);
-            draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-            draw.setFilterBitmap(false);
-            draw.setAntiAlias(false);
-            draw.setTargetDensity(mContext.getResources().getDisplayMetrics());
+            setNewDrawable();
         }
-
-        view.setBackground(draw);
 
         try {
             WindowManager.LayoutParams params = getLayoutParams();
@@ -302,12 +297,21 @@ public abstract class SmartPixelsService {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
+        boolean dpiChanged = false;
         if (newConfig != null) {
-            if (deviceWidth == newConfig.screenWidthDp && deviceHeight == newConfig.screenHeightDp && orientation == newConfig.orientation) {
+            if (deviceWidth == newConfig.screenWidthDp && deviceHeight == newConfig.screenHeightDp && orientation == newConfig.orientation && densityDpi == newConfig.densityDpi) {
                 return;
             }
 
+            dpiChanged = densityDpi != newConfig.densityDpi || deviceWidth != newConfig.screenWidthDp || deviceHeight != newConfig.screenHeightDp;
             orientation = newConfig.orientation;
+            deviceWidth = newConfig.screenWidthDp;
+            deviceHeight = newConfig.screenHeightDp;
+            densityDpi = newConfig.densityDpi;
+        }
+
+        if (dpiChanged) {
+            setNewDrawable();
         }
 
         updatePattern();
@@ -318,6 +322,16 @@ public abstract class SmartPixelsService {
             WindowManager.LayoutParams params = getLayoutParams();
             windowManager.updateViewLayout(view, params);
         }
+    }
+
+    private void setNewDrawable() {
+        Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
+        draw = new BitmapDrawable(mContext.getResources(), bmp);
+        draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+        draw.setFilterBitmap(false);
+        draw.setAntiAlias(false);
+        draw.setTargetDensity(densityDpi);
+        view.setBackground(draw);
     }
 
     private WindowManager.LayoutParams getLayoutParams() {

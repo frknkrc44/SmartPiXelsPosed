@@ -2,17 +2,23 @@ package com.fk.smartpixelsposed;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.android.systemui.smartpixels.SmartPixelsService;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends Activity {
     private int dimPercent;
     private int alphaPercent;
@@ -26,10 +32,31 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (!isEnabled()) {
+            TextView textView = new TextView(this);
+            textView.setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
+            textView.setTextAppearance(android.R.style.TextAppearance_DeviceDefault_Large);
+            textView.setText(R.string.smart_pixels_enable_title);
+            textView.setGravity(Gravity.CENTER);
+            setContentView(textView);
+            return;
+        }
+
         percentStrs = getResources().getStringArray(R.array.smart_pixels_percent_strings);
         shiftStrs = getResources().getStringArray(R.array.smart_pixels_shift_times);
 
         setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            getWindow().getAttributes().layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+
+            View content = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+            getWindow().getDecorView().setOnApplyWindowInsetsListener((v, insets) -> {
+                content.setPadding(0, insets.getSystemWindowInsetTop(), 0, insets.getSystemWindowInsetBottom());
+                return insets;
+            });
+        }
 
         setValues();
     }
@@ -38,7 +65,15 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        if (!isEnabled()) {
+            return;
+        }
+
         handler.postDelayed(this::setValues, 200);
+    }
+
+    public boolean isEnabled() {
+        return false;
     }
 
     private void setValues() {

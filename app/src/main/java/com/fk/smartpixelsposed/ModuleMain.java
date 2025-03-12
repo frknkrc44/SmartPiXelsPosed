@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -45,8 +46,10 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private static final String SYSTEMUI_BT = SYSTEMUI_PKG + ".qs.tiles.BatteryTile";
     private static final String SETTINGSLIB_BSUTILS = "com.android.settingslib.fuelgauge.BatterySaverUtils";
 
+/*
     private static final String SYSTEMUI_NBVIEW1 = "com.android.systemui.statusbar.phone.NavigationBarView";
     private static final String SYSTEMUI_NBVIEW2 = "com.android.systemui.navigationbar.NavigationBarView";
+*/
 
     private static final String ID_STATUS_BAR_CONTENTS = "status_bar_contents";
     private static final String ID_NOTIFICATION_LIGHTS_OUT = "notification_lights_out";
@@ -56,7 +59,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
     private SmartPixelsService mSmartPixelsService;
     private View mStatusBarView;
-    private View mNavBarView;
+    // private View mNavBarView;
     private boolean mUsingWorkaroundForBS = false;
     private boolean mIsOEM = false;
 
@@ -77,6 +80,16 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        if (lpparam.packageName.equals(BuildConfig.APPLICATION_ID)) {
+            XposedHelpers.findAndHookMethod(
+                    MainActivity.class.getName(),
+                    lpparam.classLoader,
+                    "isEnabled",
+                    XC_MethodReplacement.returnConstant(true)
+            );
+            return;
+        }
+
         if (!lpparam.packageName.equals(SYSTEMUI_PKG)) {
             return;
         }
@@ -88,7 +101,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bsUtilsClazz, "setPowerSaveMode", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("[SpSd - PS] " + SETTINGSLIB_BSUTILS + " " + param.method.getName());
+                    // XposedBridge.log("[SpSd - PS] " + SETTINGSLIB_BSUTILS + " " + param.method.getName());
 
                     for (Object arg : param.args) {
                         if (arg instanceof Boolean) {
@@ -104,7 +117,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XC_MethodHook powerSaverHook = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                XposedBridge.log("[SpSd - PS] " + param.thisObject + " " + param.method.getName());
+                // XposedBridge.log("[SpSd - PS] " + param.thisObject + " " + param.method.getName());
 
                 if (mSmartPixelsService != null) {
                     mSmartPixelsService.batterySaverEnabled = (boolean) param.args[0];
@@ -150,16 +163,19 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bcCallbackClazz, "onPowerSaveChanged", powerSaverHook);
         }
 
+        /*
         Class<?> nbViewClazz = XposedHelpers.findClassIfExists(SYSTEMUI_NBVIEW1, lpparam.classLoader);
         if (nbViewClazz == null) nbViewClazz = XposedHelpers.findClassIfExists(SYSTEMUI_NBVIEW2, lpparam.classLoader);
         if (nbViewClazz != null) {
             XposedBridge.hookAllConstructors(nbViewClazz, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    // XposedBridge.log("[SpSd - NB] " + param.thisObject);
                     mNavBarView = (View) param.thisObject;
                 }
             });
         }
+        */
 
         Class<?> clazz2 = XposedHelpers.findClass(SYSTEMUI_SB, lpparam.classLoader);
 
@@ -268,9 +284,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
                         : 1
         );
 
+        /*
         if (mNavBarView != null) {
             mNavBarView.setAlpha(mStatusBarView.getAlpha());
         }
+        */
     }
 
     private void updateSystemBarShifting() {
@@ -294,7 +312,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void setHeight(String viewId, int height) {
-        XposedBridge.log("[SpSd - SH] ID: " + viewId + " H: " + height);
+        // XposedBridge.log("[SpSd - SH] ID: " + viewId + " H: " + height);
 
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(
@@ -307,7 +325,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
-        XposedBridge.log("[SpSd - AS] ID: " + viewId + " ATT: " + addToTop);
+        // XposedBridge.log("[SpSd - AS] ID: " + viewId + " ATT: " + addToTop);
 
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(

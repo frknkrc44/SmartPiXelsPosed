@@ -10,8 +10,10 @@
 package com.fk.smartpixelsposed;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
@@ -77,6 +79,26 @@ public class ModuleMain implements IXposedHookLoadPackage {
     public boolean isAlternativeInjectEnabled() {
         return clazzPanelBar != null || clazzApp != null;
     }
+
+    private final BroadcastReceiver mScreenListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!mSmartPixelsService.isEnabled()) {
+                return;
+            }
+
+            switch (intent.getAction()) {
+                case Intent.ACTION_USER_UNLOCKED:
+                case Intent.ACTION_SCREEN_ON:
+                    mSmartPixelsService.startFilter();
+                    mSmartPixelsService.reloadFilter();
+                    break;
+                case Intent.ACTION_SCREEN_OFF:
+                    mSmartPixelsService.stopFilter();
+                    break;
+            }
+        }
+    };
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -197,6 +219,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
                         mSmartPixelsService = new SmartPixelsServiceImpl(mStatusBarView.getContext(), mStatusBarView.getHandler());
                         mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
                         mSmartPixelsService.usingAltLogic = isAlternativeInjectEnabled();
+
+                        IntentFilter screenFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+                        screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
+                        screenFilter.addAction(Intent.ACTION_USER_UNLOCKED);
+                        mStatusBarView.getContext().registerReceiver(mScreenListener, screenFilter);
                     } catch (Throwable e) {
                         XposedBridge.log(e);
                         return;
@@ -242,6 +269,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 if (mSmartPixelsService != null) {
                     try {
                         mSmartPixelsService.onDestroy();
+                        mStatusBarView.getContext().unregisterReceiver(mScreenListener);
+                        mSmartPixelsService = null;
                         System.gc();
                     } catch (Throwable e) {
                         XposedBridge.log(e);

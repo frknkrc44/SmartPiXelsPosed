@@ -90,7 +90,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
             switch (intent.getAction()) {
                 case Intent.ACTION_USER_UNLOCKED:
                 case Intent.ACTION_SCREEN_ON:
-                    mSmartPixelsService.startFilter();
                     mSmartPixelsService.reloadFilter();
                     break;
                 case Intent.ACTION_SCREEN_OFF:

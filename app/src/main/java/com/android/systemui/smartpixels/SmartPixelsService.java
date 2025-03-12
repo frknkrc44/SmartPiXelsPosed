@@ -241,6 +241,11 @@ public abstract class SmartPixelsService {
             return;
         }
 
+        if (view == null) {
+            startFilter();
+            return;
+        }
+
         mHandler.removeCallbacksAndMessages(null);
 
         if (view.getParent() == null) {

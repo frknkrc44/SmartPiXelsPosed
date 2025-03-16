@@ -35,4 +35,5 @@ android {
 dependencies {
     //noinspection GradleDependency
     compileOnly libs.xposedapi
+    compileOnly project(':hidden')
 }

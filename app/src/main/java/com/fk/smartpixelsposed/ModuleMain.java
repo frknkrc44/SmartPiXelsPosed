@@ -13,11 +13,14 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.DisplayManagerGlobal;
 import android.os.Handler;
 import android.provider.Settings;
+import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -64,6 +67,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
     // private View mNavBarView;
     private boolean mUsingWorkaroundForBS = false;
     private boolean mIsOEM = false;
+    private DisplayManagerGlobal mDisplayManagerGlobal;
+    private DisplayManager mDisplayManager;
 
     // classes for alternative inject points
     private Class<?> clazzPanelBar = null;
@@ -96,6 +101,32 @@ public class ModuleMain implements IXposedHookLoadPackage {
                     mSmartPixelsService.stopFilter();
                     break;
             }
+        }
+    };
+
+    private final DisplayManager.DisplayListener mDisplayListener = new DisplayManager.DisplayListener() {
+        @Override
+        public void onDisplayAdded(int displayId) {}
+
+        @Override
+        public void onDisplayRemoved(int displayId) {}
+
+        @Override
+        public void onDisplayChanged(int displayId) {
+            // XposedBridge.log("[SpSd - DC] Display change event triggered!");
+
+            DisplayInfo displayInfo = mDisplayManagerGlobal.getDisplayInfo(displayId);
+
+            // XposedBridge.log("[SpSd - DC] State: " + displayInfo.state + " Committed: " + displayInfo.committedState);
+
+            mScreenListener.onReceive(
+                    mStatusBarView.getContext(),
+                    new Intent(
+                            displayInfo.state == Display.STATE_OFF
+                                    ? Intent.ACTION_SCREEN_OFF
+                                    : Intent.ACTION_SCREEN_ON
+                    )
+            );
         }
     };
 
@@ -213,16 +244,24 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
                 mStatusBarView = (View) param.thisObject;
 
+                if (mDisplayManagerGlobal == null) {
+                    mDisplayManagerGlobal = DisplayManagerGlobal.getInstance();
+                    mDisplayManager = (DisplayManager) mStatusBarView.getContext().getSystemService(Context.DISPLAY_SERVICE);
+                }
+
                 if (mSmartPixelsService == null) {
                     try {
                         mSmartPixelsService = new SmartPixelsServiceImpl(mStatusBarView.getContext(), mStatusBarView.getHandler());
                         mSmartPixelsService.useAlternativeMethodForBS = mUsingWorkaroundForBS;
                         mSmartPixelsService.usingAltLogic = isAlternativeInjectEnabled();
 
+                        /*
                         IntentFilter screenFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
                         screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
                         screenFilter.addAction(Intent.ACTION_USER_UNLOCKED);
                         mStatusBarView.getContext().registerReceiver(mScreenListener, screenFilter);
+                        */
+                        mDisplayManager.registerDisplayListener(mDisplayListener, mStatusBarView.getHandler());
                     } catch (Throwable e) {
                         XposedBridge.log(e);
                         return;
@@ -268,7 +307,8 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 if (mSmartPixelsService != null) {
                     try {
                         mSmartPixelsService.onDestroy();
-                        mStatusBarView.getContext().unregisterReceiver(mScreenListener);
+                        // mStatusBarView.getContext().unregisterReceiver(mScreenListener);
+                        mDisplayManager.unregisterDisplayListener(mDisplayListener);
                         mSmartPixelsService = null;
                         System.gc();
                     } catch (Throwable e) {

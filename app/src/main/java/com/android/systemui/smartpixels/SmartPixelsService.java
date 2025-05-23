@@ -55,7 +55,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -254,15 +253,15 @@ public abstract class SmartPixelsService {
 
         startCounter++;
         final int handlerStartCounter = startCounter;
-        final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (view == null || destroyed || handlerStartCounter != startCounter) {
                     return;
-                } else if (pm.isInteractive()) {
-                    updatePattern();
                 }
+
+                updatePattern();
+
                 if (!destroyed) {
                     mHandler.postDelayed(this, Grids.ShiftTimeouts[mShiftTimeout]);
                 }

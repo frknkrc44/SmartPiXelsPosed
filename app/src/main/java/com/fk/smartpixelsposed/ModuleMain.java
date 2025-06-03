@@ -92,6 +92,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
                 return;
             }
 
+            // noinspection ConstantConditions
             switch (intent.getAction()) {
                 case Intent.ACTION_USER_UNLOCKED:
                 case Intent.ACTION_SCREEN_ON:

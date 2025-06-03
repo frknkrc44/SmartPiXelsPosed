@@ -70,8 +70,6 @@ public class ModuleMain implements IXposedHookLoadPackage {
     private DisplayManagerGlobal mDisplayManagerGlobal;
     private DisplayManager mDisplayManager;
 
-    private long lastFunctionCalledTime = 0;
-
     // classes for alternative inject points
     private Class<?> clazzPanelBar = null;
     private Class<?> clazzApp = null;
@@ -115,11 +113,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
         @Override
         public void onDisplayChanged(int displayId) {
-            XposedBridge.log("[SpSd - DC] Display change event triggered!");
+            log("[SpSd - DC] Display change event triggered!");
 
             DisplayInfo displayInfo = mDisplayManagerGlobal.getDisplayInfo(displayId);
 
-            XposedBridge.log("[SpSd - DC] State: " + displayInfo.state + " Committed: " + displayInfo.committedState);
+            log("[SpSd - DC] State: " + displayInfo.state + " Committed: " + displayInfo.committedState);
 
             mScreenListener.onReceive(
                     mStatusBarView.getContext(),
@@ -155,7 +153,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllMethods(bsUtilsClazz, "setPowerSaveMode", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("[SpSd - PS] " + SETTINGSLIB_BSUTILS + " " + param.method.getName());
+                    log("[SpSd - PS] " + SETTINGSLIB_BSUTILS + " " + param.method.getName());
 
                     for (Object arg : param.args) {
                         if (arg instanceof Boolean) {
@@ -171,7 +169,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XC_MethodHook powerSaverHook = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                XposedBridge.log("[SpSd - PS] " + param.thisObject + " " + param.method.getName());
+                log("[SpSd - PS] " + param.thisObject + " " + param.method.getName());
 
                 if (mSmartPixelsService != null) {
                     mSmartPixelsService.batterySaverEnabled = (boolean) param.args[0];
@@ -224,7 +222,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
             XposedBridge.hookAllConstructors(nbViewClazz, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    XposedBridge.log("[SpSd - NB] " + param.thisObject);
+                    log("[SpSd - NB] " + param.thisObject);
                     mNavBarView = (View) param.thisObject;
                 }
             });
@@ -242,7 +240,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazzPanelBar != null ? clazzPanelBar : clazz2, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                XposedBridge.log("[SpSd - AW] " + param.thisObject + " " + param.method.getName());
+                log("[SpSd - AW] " + param.thisObject + " " + param.method.getName());
 
                 mStatusBarView = (View) param.thisObject;
 
@@ -279,11 +277,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazzApp != null ? clazzApp : clazz2, "onConfigurationChanged", Configuration.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var currentTime = System.currentTimeMillis();
-                if ((currentTime - lastFunctionCalledTime) < 3000) return;
-                lastFunctionCalledTime = currentTime;
-
-                XposedBridge.log("[SpSd - CC] " + param.thisObject + " " + param.method.getName());
+                log("[SpSd - CC] " + param.thisObject + " " + param.method.getName());
 
                 mStatusBarView = (View) param.thisObject;
 
@@ -306,7 +300,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazzPanelBar != null ? clazzPanelBar : clazz2, "onDetachedFromWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                XposedBridge.log("[SpSd - DW] " + param.thisObject + " " + param.method.getName());
+                log("[SpSd - DW] " + param.thisObject + " " + param.method.getName());
 
                 mStatusBarView = (View) param.thisObject;
 
@@ -386,7 +380,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void setHeight(String viewId, int height) {
-        XposedBridge.log("[SpSd - SH] ID: " + viewId + " H: " + height);
+        log("[SpSd - SH] ID: " + viewId + " H: " + height);
 
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(
@@ -399,7 +393,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
     }
 
     private void applyShiftingToView(String viewId, int startPaddingAdd, int topPaddingAdd, boolean addToTop) {
-        XposedBridge.log("[SpSd - AS] ID: " + viewId + " ATT: " + addToTop);
+        log("[SpSd - AS] ID: " + viewId + " ATT: " + addToTop);
 
         final Resources res = mStatusBarView.getResources();
         final int stContentsId = res.getIdentifier(
@@ -506,6 +500,12 @@ public class ModuleMain implements IXposedHookLoadPackage {
         mSmartPixelsService.mSettingsReceiver.onReceive(statusBarContext, refreshIntent);
     }
     // --- GravityBox inspirations - end --- //
+
+    void log(String text) {
+        if (BuildConfig.DEBUG) {
+            XposedBridge.log(text);
+        }
+    }
 
     private class SmartPixelsServiceImpl extends SmartPixelsService {
         public SmartPixelsServiceImpl(Context context, Handler handler) {

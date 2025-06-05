@@ -85,7 +85,7 @@ public abstract class SmartPixelsService {
     private int startCounter = 0;
     private Context mContext;
     private Handler mHandler;
-    private Configuration mConfiguration;
+    private int deviceWidth, deviceHeight, orientation;
     private ContentObserver mObserver;
     private IntentFilter mSettingsIntentFilter;
 
@@ -176,7 +176,10 @@ public abstract class SmartPixelsService {
         mContext = context;
         mHandler = handler;
 
-        mConfiguration = context.getResources().getConfiguration();
+        Configuration conf = context.getResources().getConfiguration();
+        deviceWidth = conf.screenWidthDp;
+        deviceHeight = conf.screenHeightDp;
+        orientation = conf.orientation;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -294,27 +297,16 @@ public abstract class SmartPixelsService {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        boolean dpiChanged = false;
         if (newConfig != null) {
-            if (mConfiguration == null) {
-                mConfiguration = newConfig;
-            } else {
-                if (mConfiguration.screenWidthDp == newConfig.screenWidthDp &&
-                        mConfiguration.screenHeightDp == newConfig.screenHeightDp &&
-                        mConfiguration.orientation == newConfig.orientation &&
-                        mConfiguration.densityDpi == newConfig.densityDpi) {
-                    return;
-                }
+            if (deviceWidth == newConfig.screenWidthDp &&
+                    deviceHeight == newConfig.screenHeightDp &&
+                    orientation == newConfig.orientation) {
+                return;
             }
 
-            dpiChanged = mConfiguration.densityDpi != newConfig.densityDpi ||
-                    mConfiguration.screenWidthDp != newConfig.screenWidthDp ||
-                    mConfiguration.screenHeightDp != newConfig.screenHeightDp;
-            mConfiguration = newConfig;
-        }
-
-        if (dpiChanged) {
-            setNewDrawable();
+            deviceWidth = newConfig.screenWidthDp;
+            deviceHeight = newConfig.screenHeightDp;
+            orientation = newConfig.orientation;
         }
 
         updatePattern();
@@ -335,7 +327,6 @@ public abstract class SmartPixelsService {
         draw.setAntiAlias(false);
         draw.setMipMap(false);
         draw.setAutoMirrored(false);
-        // draw.setTargetDensity(mConfiguration.densityDpi);
         view.setBackground(draw);
     }
 

@@ -196,6 +196,7 @@ public abstract class SmartPixelsService {
         windowManager = (WindowManager) mContext.getSystemService(WINDOW_SERVICE);
 
         view = new View(mContext);
+        view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         if (mSettingsIntentFilter == null) {
             mSettingsIntentFilter = new IntentFilter(INTENT_ACTION);
@@ -340,6 +341,7 @@ public abstract class SmartPixelsService {
             displaySize.y = bounds.height();
         }
 
+        // noinspection deprecation
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 displaySize.x,
                 displaySize.y,
@@ -353,7 +355,7 @@ public abstract class SmartPixelsService {
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN |
                         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
                         WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                PixelFormat.TRANSPARENT
+                PixelFormat.RGBA_4444
         );
 
         try {

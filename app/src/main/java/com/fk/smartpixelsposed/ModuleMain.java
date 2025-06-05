@@ -118,7 +118,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
 
             DisplayInfo displayInfo = mDisplayManagerGlobal.getDisplayInfo(displayId);
 
-            log("[SpSd - DC] State: " + displayInfo.state + " Committed: " + displayInfo.committedState);
+            log("[SpSd - DC] State: " + displayInfo.state);
 
             mScreenListener.onReceive(
                     mStatusBarView.getContext(),

@@ -18,12 +18,6 @@ public class DisplayInfo implements Parcelable {
      */
     public int state;
 
-    /**
-     * The current committed state of the display. For example, this becomes
-     * {@link android.view.Display#STATE_ON} only after the power state ON is fully committed.
-     */
-    public int committedState;
-
     public static final Parcelable.Creator<DisplayInfo> CREATOR = new Parcelable.Creator<>() {
         @Override
         public DisplayInfo createFromParcel(Parcel source) {

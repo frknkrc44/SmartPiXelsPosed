@@ -322,7 +322,7 @@ public class ModuleMain implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(clazz2, "onTouchEvent", MotionEvent.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (mSmartPixelsService.dimDragEnabled) {
+                if (mSmartPixelsService != null && mSmartPixelsService.dimDragEnabled) {
                     dimControl((MotionEvent) param.args[0]);
                     param.setResult(true);
                 }

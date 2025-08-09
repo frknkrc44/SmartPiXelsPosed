@@ -269,9 +269,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
                     }
                 }
 
-                mSmartPixelsService.startFilter();
-                updateSystemBarShifting();
-                updateSystemBarsAlpha();
+                if (mSmartPixelsService != null) {
+                    mSmartPixelsService.startFilter();
+                    updateSystemBarShifting();
+                    updateSystemBarsAlpha();
+                }
             }
         });
 

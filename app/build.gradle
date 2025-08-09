@@ -4,19 +4,19 @@ plugins {
 
 android {
     namespace 'com.fk.smartpixelsposed'
-    compileSdk 35
+    compileSdk = 36
 
     buildFeatures {
         buildConfig true
     }
 
     defaultConfig {
-        applicationId namespace
-        minSdk 24
-        targetSdk 35
-        versionCode 13
-        versionName "1.13"
-        multiDexEnabled false
+        applicationId = namespace
+        minSdk = 24
+        targetSdk = compileSdk
+        versionCode = 14
+        versionName = "1.14"
+        multiDexEnabled = false
     }
 
     buildTypes {
@@ -36,4 +36,10 @@ dependencies {
     //noinspection GradleDependency
     compileOnly libs.xposedapi
     compileOnly project(':hidden')
+}
+
+android.applicationVariants.all {
+    outputs.all {
+        outputFileName = "${rootProject.name.replace(" ", "_")}-v${versionName}-${buildType.name}.apk"
+    }
 }

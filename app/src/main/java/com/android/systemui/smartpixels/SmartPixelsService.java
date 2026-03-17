@@ -326,10 +326,10 @@ public abstract class SmartPixelsService {
         view.setBackground(draw);
     }
 
+    /** @noinspection ExtractMethodRecommender,deprecation */
     private WindowManager.LayoutParams getLayoutParams() {
         final var oneDp = Resources.getSystem().getDisplayMetrics().density;
 
-        // noinspection deprecation
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 (int) (deviceWidth * oneDp),
                 (int) (deviceHeight * oneDp),

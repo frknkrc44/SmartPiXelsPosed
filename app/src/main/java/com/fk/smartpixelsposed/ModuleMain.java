@@ -144,8 +144,11 @@ public class ModuleMain implements IXposedHookLoadPackage {
         }
 
         if (!lpparam.packageName.equals(SYSTEMUI_PKG)) {
+            XposedBridge.log("[SpSd - Main] Package name " + lpparam.packageName + " is not valid, skipping hook");
             return;
         }
+
+        XposedBridge.log("[SpSd - Main] Injected into SystemUI");
 
         Class<?> bsUtilsClazz = XposedHelpers.findClassIfExists(SETTINGSLIB_BSUTILS, lpparam.classLoader);
         if (bsUtilsClazz != null) {

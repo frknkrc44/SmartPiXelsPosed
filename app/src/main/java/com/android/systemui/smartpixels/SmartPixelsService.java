@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -299,12 +300,6 @@ public abstract class SmartPixelsService {
 
     public void onConfigurationChanged(Configuration newConfig) {
         if (newConfig != null) {
-            if (deviceWidth == newConfig.screenWidthDp &&
-                    deviceHeight == newConfig.screenHeightDp &&
-                    orientation == newConfig.orientation) {
-                return;
-            }
-
             deviceWidth = newConfig.screenWidthDp;
             deviceHeight = newConfig.screenHeightDp;
             orientation = newConfig.orientation;
@@ -321,7 +316,7 @@ public abstract class SmartPixelsService {
     }
 
     private void setNewDrawable() {
-        Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ARGB_4444);
+        Bitmap bmp = Bitmap.createBitmap(Grids.GridSideSize, Grids.GridSideSize, Bitmap.Config.ALPHA_8);
         draw = new BitmapDrawable(mContext.getResources(), bmp);
         draw.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
         draw.setFilterBitmap(false);
@@ -332,19 +327,12 @@ public abstract class SmartPixelsService {
     }
 
     private WindowManager.LayoutParams getLayoutParams() {
-        Point displaySize = new Point();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            windowManager.getDefaultDisplay().getRealSize(displaySize);
-        } else {
-            Rect bounds = windowManager.getCurrentWindowMetrics().getBounds();
-            displaySize.x = bounds.width();
-            displaySize.y = bounds.height();
-        }
+        final var oneDp = Resources.getSystem().getDisplayMetrics().density;
 
         // noinspection deprecation
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                displaySize.x,
-                displaySize.y,
+                (int) (deviceWidth * oneDp),
+                (int) (deviceHeight * oneDp),
                 0,
                 0,
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
@@ -355,7 +343,7 @@ public abstract class SmartPixelsService {
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_OVERSCAN |
                         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
                         WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                PixelFormat.RGBA_4444
+                PixelFormat.A_8
         );
 
         try {

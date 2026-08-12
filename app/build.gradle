@@ -14,8 +14,8 @@ android {
         applicationId = namespace
         minSdk = 24
         targetSdk = compileSdk
-        versionCode = 14
-        versionName = "1.14"
+        versionCode = 15
+        versionName = "1.15"
         multiDexEnabled = false
     }
 

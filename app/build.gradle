@@ -2,6 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+final var localProperties = new Properties()
+final var localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.newInputStream())
+}
+
 android {
     namespace 'com.fk.smartpixelsposed'
     compileSdk = 36
@@ -19,9 +25,26 @@ android {
         multiDexEnabled = false
     }
 
+    signingConfigs {
+        final var fileDir = localProperties.getProperty("fileDir")
+        if (fileDir != null) {
+            release {
+                storeFile = file(fileDir)
+                storePassword = localProperties.getProperty("storePassword")
+                keyAlias = localProperties.getProperty("keyAlias")
+                keyPassword = localProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            if (localProperties.getProperty("fileDir") != null) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

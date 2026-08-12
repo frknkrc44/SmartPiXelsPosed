@@ -49,8 +49,6 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -86,7 +84,7 @@ public abstract class SmartPixelsService {
     private int startCounter = 0;
     private Context mContext;
     private Handler mHandler;
-    private int deviceWidth, deviceHeight, orientation;
+    private int deviceWidth, deviceHeight;
     private ContentObserver mObserver;
     private IntentFilter mSettingsIntentFilter;
 
@@ -180,7 +178,6 @@ public abstract class SmartPixelsService {
         Configuration conf = context.getResources().getConfiguration();
         deviceWidth = conf.screenWidthDp;
         deviceHeight = conf.screenHeightDp;
-        orientation = conf.orientation;
 
         updateSettings();
         Log.d(LOG, "Service started");
@@ -302,7 +299,6 @@ public abstract class SmartPixelsService {
         if (newConfig != null) {
             deviceWidth = newConfig.screenWidthDp;
             deviceHeight = newConfig.screenHeightDp;
-            orientation = newConfig.orientation;
         }
 
         updatePattern();
@@ -310,8 +306,10 @@ public abstract class SmartPixelsService {
         if (view != null && view.getParent() != null) {
             Log.d(LOG, "Screen orientation or smallest width changed, updating window layout");
 
-            WindowManager.LayoutParams params = getLayoutParams();
-            windowManager.updateViewLayout(view, params);
+            runIfMainThread(() -> {
+                WindowManager.LayoutParams params = getLayoutParams();
+                windowManager.updateViewLayout(view, params);
+            });
         }
     }
 
@@ -388,7 +386,13 @@ public abstract class SmartPixelsService {
         drawPattern(draw.getBitmap(), mPattern, getShift(), getDimColor());
 
         if (view != null) {
-            view.invalidate();
+            runIfMainThread(view::invalidate);
+        }
+    }
+
+    private void runIfMainThread(Runnable runnable) {
+        if (Thread.currentThread().getName().equals("main")) {
+            runnable.run();
         }
     }
 

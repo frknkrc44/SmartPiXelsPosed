@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -8,9 +10,17 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.newInputStream())
 }
 
-android {
+ApplicationExtension getAppExt() {
+    return getExtensions().findByType(ApplicationExtension.class)
+}
+
+base {
+    archivesName = "${rootProject.name.replace(" ", "_")}-v${getAppExt().defaultConfig.versionName}"
+}
+
+configure(getAppExt()) {
     namespace 'com.fk.smartpixelsposed'
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         buildConfig true
@@ -50,8 +60,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }
 
@@ -59,10 +69,4 @@ dependencies {
     //noinspection GradleDependency
     compileOnly libs.xposedapi
     compileOnly project(':hidden')
-}
-
-android.applicationVariants.all {
-    outputs.all {
-        outputFileName = "${rootProject.name.replace(" ", "_")}-v${versionName}-${buildType.name}.apk"
-    }
 }

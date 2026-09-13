@@ -49,6 +49,8 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -324,13 +326,20 @@ public abstract class SmartPixelsService {
         view.setBackground(draw);
     }
 
-    /** @noinspection ExtractMethodRecommender,deprecation */
+    /** @noinspection all */
     private WindowManager.LayoutParams getLayoutParams() {
-        final var oneDp = Resources.getSystem().getDisplayMetrics().density;
+        Point displaySize = new Point();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            windowManager.getDefaultDisplay().getRealSize(displaySize);
+        } else {
+            Rect bounds = windowManager.getCurrentWindowMetrics().getBounds();
+            displaySize.x = bounds.width();
+            displaySize.y = bounds.height();
+        }
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                (int) (deviceWidth * oneDp),
-                (int) (deviceHeight * oneDp),
+                displaySize.x,
+                displaySize.y,
                 0,
                 0,
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,

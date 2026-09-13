@@ -392,7 +392,14 @@ public abstract class SmartPixelsService {
 
     private void runIfMainThread(Runnable runnable) {
         if (Thread.currentThread().getName().equals("main")) {
-            runnable.run();
+            try {
+                runnable.run();
+            } catch (Throwable ignore) {
+               try {
+                   XposedHelpers.setObjectField(view, "mThread", Thread.currentThread());
+                   runnable.run();
+               } catch (Throwable ignore2) {}
+            }
         }
     }
 
